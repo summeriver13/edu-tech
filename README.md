@@ -1,24 +1,15 @@
-# README
+# eud-tech 
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+[Rails](https://rubyonrails.org),
+[Bootstrap](https://getbootstrap.com),
+[PostgreSQL](https://www.postgresql.org),
 
-Things you may want to cover:
+## quick-links
 
-* Ruby version
+## quick-start
 
-* System dependencies
+## documents
 
-* Configuration
+- [change-log.zh.md](./documents/change-log.zh.md)
 
-* Database creation
 
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
