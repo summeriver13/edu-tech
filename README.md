@@ -12,4 +12,6 @@
 
 - [change-log.zh.md](./documents/change-log.zh.md)
 
+## database
 
+- [qiniu-cloud](https://www.qiniu.com/prices/kodo)
