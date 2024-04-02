@@ -2,6 +2,14 @@
 
 <%= render @course %>
 
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <video src="/test-videos/Dungeon.mp4" controls class="mx-auto"></video>
+    </div>
+  </div>
+</div>
+
 <div>
   <%= link_to "Edit this course", edit_course_path(@course) %> |
   <%= link_to "Back to courses", courses_path %>

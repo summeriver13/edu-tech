@@ -12,23 +12,23 @@
   <% end %>
 
   <div class="mb-3">
-    <%= form.label :title, style: "display: block" %>
-    <%= form.text_field :title %>
+    <%= form.label :title, class: "form-label" %>
+    <%= form.text_field :title, class: "form-control"%>
   </div>
 
   <div>
-    <%= form.label :description, style: "display: block" %>
-    <%= form.text_area :description, rows:10, cols: 60 %>
+    <%= form.label :description, class: "form-label" %>
+    <%= form.text_area :description, rows:10, class: "form-control"%>
   </div>
 
   <div>
-    <%= form.label :image_url, style: "display: block" %>
-    <%= form.text_field :image_url %>
+    <%= form.label :image_url, class: "form-label" %>
+    <%= form.text_field :image_url, class: "form-control"%>
   </div>
 
   <div>
-    <%= form.label :credit, style: "display: block" %>
-    <%= form.text_field :credit %>
+    <%= form.label :credit, class: "form-label" %>
+    <%= form.text_field :credit, class: "form-control" %>
   </div>
   <br/>
   <div>
