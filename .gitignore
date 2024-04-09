@@ -1,5 +1,8 @@
 # See https://help.github.com/articles/ignoring-files for more about ignoring files.
 
+# Ignore qiniu access_key and secret_key
+/config/initializers/carrierwave.rb
+
 # Ignore test videos
 /public/test-videos
 
