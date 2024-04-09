@@ -1,0 +1,14 @@
+<h2>资源</h2>
+
+<% @course.resources.each do |resource| %>
+  <%= resource.name %>
+  <%= link_to '详情', course_resource_path(resource.course, resource) , class: 'btn btn-sm btn-outline-secondary' %>|
+    <%= link_to "Destroy resource", [resource.course, resource], data: {
+                  turbo_method: :delete,
+                  turbo_confirm: "Are you sure?"
+                } %><br>
+<% end %>
+
+<div>
+  <%= link_to 'new resource', new_course_resource_path(@course) %>
+<div/>

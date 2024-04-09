@@ -1,0 +1,11 @@
+<div class="container">
+  <h1>课程基本信息</h1>
+  <%= render @course %>
+</div>
+
+<div class="container">
+  <%= link_to "Edit course", url_for(controller: 'courses', action: 'edit') %> |
+  <%= link_to "Back to course" , url_for(controller: 'courses', action: 'show') %>
+
+  <%= button_to "Destroy this course", @course, method: :delete %>
+</div>

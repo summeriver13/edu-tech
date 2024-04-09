@@ -1,0 +1,17 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  course: one
+  activity_type: MyString
+  start_time: 2024-04-05 22:29:19
+  end_time: 2024-04-05 22:29:19
+  location: MyString
+  description: MyText
+
+two:
+  course: two
+  activity_type: MyString
+  start_time: 2024-04-05 22:29:19
+  end_time: 2024-04-05 22:29:19
+  location: MyString
+  description: MyText

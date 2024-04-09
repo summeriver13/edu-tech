@@ -1,0 +1,22 @@
+<h1>Editing user</h1>
+
+<%= render "form", user: @user %>
+
+<br>
+
+<div>
+  <%= link_to "Show this user", @user %> |
+  <%= link_to "Back to users", users_path %>
+</div>
+
+
+<h1>七牛云上传测试</h1>
+<div class="container">
+  <%= form_with(url: course_resources_path(@course), local: true, multipart: true) do |form| %>
+    <div class="mb-3">
+      <%= form.label :file, "选择文件", class:"form-label" %>
+      <%= form.file_field :file, class: 'form-control' %>
+    </div>
+    <%= form.submit "上传文件", class: 'btn btn-primary', type: 'submit' %>
+  <% end %>
+</div>

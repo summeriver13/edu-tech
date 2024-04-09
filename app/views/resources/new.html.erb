@@ -1,0 +1,20 @@
+<h2>Add a resource:</h2>
+<%= form_with model: [ @course, @course.resources.build ], html: { multipart: true } do |form| %>
+  <p>
+    <%= form.label :name %><br>
+    <%= form.text_field :name %>
+  </p>
+  <p>
+    <%= form.label :description %><br>
+    <%= form.text_area :description %>
+  </p>
+
+  <p>
+    <%= form.label :video %><br>
+    <%= form.file_field :video %>
+  </p>
+
+  <p>
+    <%= form.submit %>
+  </p>
+<% end %>

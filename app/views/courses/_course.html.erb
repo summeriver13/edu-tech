@@ -1,22 +1,29 @@
-<div id="<%= dom_id course %>">
+<div id="<%= dom_id course %>" class="container">
+
   <p>
-    <strong>Title:</strong>
+    <label class="form-label">course_number:</label>
+    <%= course.course_number %>
+  </p>
+
+  <p>
+    <label class="form-label">Title:</label>
     <%= course.title %>
   </p>
 
   <p>
-    <strong>Description:</strong>
+    <label class="form-label">Description:</label>
     <%= course.description %>
   </p>
 
   <p>
-    <strong>Image url:</strong>
+    <label class="form-label">Image url:</label>
     <%= course.image_url %>
   </p>
 
   <p>
-    <strong>Credit:</strong>
+    <label class="form-label">Credit:</label>
     <%= course.credit %>
   </p>
 
 </div>
+
