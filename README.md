@@ -1,4 +1,4 @@
-# eud-tech 
+# eud-tech
 
 [Rails](https://rubyonrails.org),
 [Bootstrap](https://getbootstrap.com),
@@ -10,6 +10,7 @@
 
 ## documents
 
+- [rails-guide.zh.md](./documents/rails-guide.zh.md)
 - [change-log.zh.md](./documents/change-log.zh.md)
 
 ## database
