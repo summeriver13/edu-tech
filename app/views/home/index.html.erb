@@ -1,5 +1,49 @@
 <%= render "layouts/header" %>
 
 <div class="container">
-    <h1 class="display-1">Part 1</h1>
+  <div class="p-5 mb-4 bg-body-secondary rounded-3">
+    <h1 class="display-5 fw-bold">Edu-Tech 在线课堂</h1>
+    <p class="col-md-8 fs-5 text-body-secondary">管理课程、课程资源与课程活动。</p>
+    <%= link_to "浏览课程", courses_path, class: "btn btn-primary btn-lg" %>
+    <% if logged_in? %>
+      <%= link_to "新建课程", new_course_path, class: "btn btn-outline-secondary btn-lg" %>
+    <% else %>
+      <%= link_to "登录", new_session_path, class: "btn btn-outline-secondary btn-lg" %>
+    <% end %>
+  </div>
+
+  <h2 class="h4 mb-3">最新课程</h2>
+  <div class="row row-cols-1 row-cols-md-3 g-3 mb-5">
+    <% @courses.each do |course| %>
+      <div class="col">
+        <div class="card h-100">
+          <div class="card-body">
+            <h3 class="h5 card-title"><%= link_to course.title, course_path(course), class: "text-decoration-none" %></h3>
+            <p class="card-text text-body-secondary"><%= truncate(course.description, length: 80) %></p>
+            <span class="badge text-bg-light"><%= course.course_number %></span>
+          </div>
+        </div>
+      </div>
+    <% end %>
+    <% if @courses.empty? %>
+      <p class="text-body-secondary">暂无课程。</p>
+    <% end %>
+  </div>
+
+  <h2 class="h4 mb-3">近期活动</h2>
+  <ul class="list-group mb-5">
+    <% @activities.each do |activity| %>
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        <div>
+          <strong><%= activity.activity_type %></strong>
+          <span class="text-body-secondary ms-2"><%= activity.course.title %></span>
+          <div class="small text-body-secondary"><%= activity.start_time %> · <%= activity.location %></div>
+        </div>
+        <%= link_to "查看", course_activity_path(activity.course, activity), class: "btn btn-sm btn-outline-secondary" %>
+      </li>
+    <% end %>
+    <% if @activities.empty? %>
+      <p class="text-body-secondary">暂无活动。</p>
+    <% end %>
+  </ul>
 </div>
