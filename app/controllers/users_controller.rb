@@ -17,12 +17,6 @@ class UsersController < ApplicationController
 
   # GET /users/1/edit
   def edit
-    file = params[:file] # 获取上传的文件
-    key = SecureRandom.uuid # 生成唯一的文件名，你也可以根据需要修改文件名逻辑
-
-    upload_to_qiniu(file, key) # 调用上传方法将文件上传到七牛云
-
-    # 处理上传成功后的逻辑，例如保存文件信息到数据库等
   end
 
   # POST /users or /users.json
@@ -72,22 +66,5 @@ class UsersController < ApplicationController
     # Only allow a list of trusted parameters through.
     def user_params
       params.require(:user).permit(:name, :password, :password_confirmation)
-    end
-
-    def upload_to_qiniu(file, key)
-      bucket = 'rails-videos' # 七牛云存储空间名称
-      put_policy = Qiniu::Auth::PutPolicy.new(bucket)
-      token = Qiniu::Auth.generate_uptoken(put_policy)
-
-      code, result, _response_headers = Qiniu::Storage.upload_with_token_2(
-        token, file.path, key, nil, bucket: bucket
-      )
-
-      # 处理上传结果
-      if code == 200
-        Rails.logger.info "Upload success"
-      else
-        Rails.logger.error "Upload failed: #{result}"
-      end
     end
 end
