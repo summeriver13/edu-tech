@@ -1,22 +1,17 @@
 source "https://rubygems.org"
 
-ruby "3.2.3"
+ruby "4.0.7"
 
-# Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
-gem "rails", "~> 7.1.3", ">= 7.1.3.2"
+gem "rails", "~> 8.1.4"
 
 # The original asset pipeline for Rails [https://github.com/rails/sprockets-rails]
 gem "sprockets-rails"
 
-# Use qiniu-cloud stroge files. 七牛云 云存储
-gem "qiniu", ">= 6.9.1"
-
-# File Uploader [https://github.com/huobazi/carrierwave-qiniu]
+# File Uploader
 gem 'carrierwave'
-gem 'carrierwave-qiniu'
 
 # Use sqlite3 as the database for Active Record sqlite3 关系型数据库
-gem "sqlite3", "~> 1.4"
+gem "sqlite3", ">= 2.2"
 
 # Use the Puma web server [https://github.com/puma/puma]
 gem "puma", ">= 5.0"
@@ -57,6 +52,10 @@ gem "bootsnap", require: false
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri windows ]
+
+  # Ruby 4.0 moved fiddle out of default gems; reline/irb need it for console
+  gem "fiddle"
+  gem "irb"
 end
 
 group :development do

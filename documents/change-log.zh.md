@@ -25,4 +25,10 @@ rails new edu-tech -c bootstrap -j esbuild
 
 - [Bootstrap 5 + esbuild in Ruby on Rails 7](https://www.youtube.com/watch?v=jyqjecyCv3A)
 
+## 2026/11/9 storage switch and upgrade
+
+- Storage: Qiniu Cloud (expired) -> local CarrierWave `storage :file`, files in `public/uploads/`
+- Ruby 3.2.3 -> 4.0.7; Rails 7.1.3 -> 8.1.4.1; `config.load_defaults 8.1`
+- Fixes: Course associations use `dependent: :destroy`; added missing `courses#edit` view; fixtures use real data; `fiddle`/`irb` added for Ruby 4 console
+
 
