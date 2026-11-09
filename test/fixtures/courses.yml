@@ -1,13 +1,15 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  title: MyString
-  description: MyText
-  image_url: MyString
+  title: Ruby Basics
+  description: Introduction to the Ruby language
+  image_url: https://placehold.co/600x400
   credit: 1.5
+  course_number: CS101
 
 two:
-  title: MyString
-  description: MyText
-  image_url: MyString
-  credit: 1.5
+  title: Rails in Practice
+  description: Building web applications with Rails
+  image_url: https://placehold.co/600x401
+  credit: 3.0
+  course_number: CS102
