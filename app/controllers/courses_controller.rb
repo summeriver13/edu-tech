@@ -1,10 +1,17 @@
 class CoursesController < ApplicationController
+  PER_PAGE = 9
+
   before_action :require_login, only: %i[ new create edit update destroy ]
   before_action :set_course, only: %i[show edit update destroy ]
 
   # GET /courses or /courses.json
   def index
-    @courses = Course.all
+    @query = params[:q].to_s.strip
+    scope = Course.search(@query).order(created_at: :desc)
+    @total = scope.count
+    @page = page_param
+    @total_pages = (@total / PER_PAGE.to_f).ceil
+    @courses = scope.offset((@page - 1) * PER_PAGE).limit(PER_PAGE)
   end
 
   def show
@@ -64,6 +71,10 @@ class CoursesController < ApplicationController
     # Use callbacks to share common setup or constraints between actions.
     def set_course
       @course = Course.find(params[:id])
+    end
+
+    def page_param
+      [params[:page].to_i, 1].max
     end
 
     # Only allow a list of trusted parameters through.
