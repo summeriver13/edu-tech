@@ -2,6 +2,7 @@ require "test_helper"
 
 class UsersControllerTest < ActionDispatch::IntegrationTest
   setup do
+    log_in_as users(:one)
     @user = users(:one)
   end
 
