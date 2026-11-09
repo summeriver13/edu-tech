@@ -1,14 +1,27 @@
-<h2>资源</h2>
+<h2><%= @course.title %> 资源</h2>
 
-<% @course.resources.each do |resource| %>
-  <%= resource.name %>
-  <%= link_to '详情', course_resource_path(resource.course, resource) , class: 'btn btn-sm btn-outline-secondary' %>|
-    <%= link_to "Destroy resource", [resource.course, resource], data: {
-                  turbo_method: :delete,
-                  turbo_confirm: "Are you sure?"
-                } %><br>
-<% end %>
+<div class="table-responsive">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Url</th>
+        <th>Video</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @resources.each do |resource| %>
+        <tr>
+          <td><%= link_to resource.name, course_resource_path(@course, resource) %></td>
+          <td><%= resource.resource_type %></td>
+          <td><%= resource.url %></td>
+          <td><%= resource.video.url if resource.video.present? %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
 
-<div>
-  <%= link_to 'new resource', new_course_resource_path(@course) %>
-<div/>
+<%= link_to "New resource", new_course_resource_path(@course), class: "btn btn-primary" %>
+<%= link_to "Back to course", course_path(@course), class: "btn btn-outline-secondary" %>

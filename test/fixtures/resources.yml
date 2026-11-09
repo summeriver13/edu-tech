@@ -2,12 +2,14 @@
 
 one:
   course: one
-  resource_type: MyString
+  name: Lecture slides
+  resource_type: document
   url: MyString
   description: MyText
 
 two:
   course: two
-  resource_type: MyString
+  name: Reading list
+  resource_type: link
   url: MyString
   description: MyText

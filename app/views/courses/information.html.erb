@@ -4,8 +4,8 @@
 </div>
 
 <div class="container">
-  <%= link_to "Edit course", url_for(controller: 'courses', action: 'edit') %> |
-  <%= link_to "Back to course" , url_for(controller: 'courses', action: 'show') %>
+  <%= link_to "Edit course", edit_course_path(@course) %> |
+  <%= link_to "Back to course", course_path(@course) %>
 
   <%= button_to "Destroy this course", @course, method: :delete %>
 </div>

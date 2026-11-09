@@ -1,12 +1,26 @@
+<h2><%= @resource.name %></h2>
+
 <p>
-  <strong>Name:</strong>
-  <%= @resource.name %>
+  <strong>Type:</strong>
+  <%= @resource.resource_type %>
 </p>
+
+<p>
+  <strong>Url:</strong>
+  <%= @resource.url %>
+</p>
+
 <p>
   <strong>Description:</strong>
   <%= @resource.description %>
 </p>
-<p>
-  <strong>url:</strong>
-  <%= @resource.video.url %>
-</p>
+
+<% if @resource.video.present? %>
+  <p>
+    <strong>Video:</strong>
+    <%= link_to @resource.video.url, @resource.video.url, target: "_blank", rel: "noopener" %>
+  </p>
+<% end %>
+
+<%= link_to "Edit", edit_course_resource_path(@course, @resource), class: "btn btn-outline-secondary" %>
+<%= link_to "Back to resources", course_resources_path(@course), class: "btn btn-outline-secondary" %>

@@ -1,0 +1,27 @@
+<h2><%= @course.title %> 活动</h2>
+
+<div class="table-responsive">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Start</th>
+        <th>End</th>
+        <th>Location</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @activities.each do |activity| %>
+        <tr>
+          <td><%= link_to activity.activity_type, course_activity_path(@course, activity) %></td>
+          <td><%= activity.start_time %></td>
+          <td><%= activity.end_time %></td>
+          <td><%= activity.location %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<%= link_to "New activity", new_course_activity_path(@course), class: "btn btn-primary" %>
+<%= link_to "Back to course", course_path(@course), class: "btn btn-outline-secondary" %>

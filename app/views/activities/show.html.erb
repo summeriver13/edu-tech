@@ -1,0 +1,24 @@
+<h2><%= @activity.activity_type %></h2>
+
+<p>
+  <strong>Start:</strong>
+  <%= @activity.start_time %>
+</p>
+
+<p>
+  <strong>End:</strong>
+  <%= @activity.end_time %>
+</p>
+
+<p>
+  <strong>Location:</strong>
+  <%= @activity.location %>
+</p>
+
+<p>
+  <strong>Description:</strong>
+  <%= @activity.description %>
+</p>
+
+<%= link_to "Edit", edit_course_activity_path(@course, @activity), class: "btn btn-outline-secondary" %>
+<%= link_to "Back to activities", course_activities_path(@course), class: "btn btn-outline-secondary" %>
