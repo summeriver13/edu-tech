@@ -10,9 +10,9 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_04_08_235910) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_09_152000) do
   create_table "activities", force: :cascade do |t|
-    t.string "course_id"
+    t.integer "course_id", null: false
     t.string "activity_type"
     t.datetime "start_time"
     t.datetime "end_time"
@@ -35,14 +35,14 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_08_235910) do
   end
 
   create_table "resources", force: :cascade do |t|
-    t.string "course_id"
+    t.integer "course_id", null: false
     t.string "resource_type"
+    t.string "name"
     t.string "url"
+    t.string "video"
     t.text "description"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "name"
-    t.string "video"
     t.index ["course_id"], name: "index_resources_on_course_id"
   end
 
@@ -54,7 +54,5 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_08_235910) do
   end
 
   add_foreign_key "activities", "courses"
-  add_foreign_key "activities", "courses"
-  add_foreign_key "resources", "courses"
   add_foreign_key "resources", "courses"
 end
