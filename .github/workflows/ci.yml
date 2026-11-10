@@ -1,0 +1,58 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+    paths-ignore:
+      - "**.md"
+      - "documents/**"
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # .ruby-version uses the rbenv-for-Windows suffix (4.0.7-2); CI pins the plain version.
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "4.0.7"
+          bundler-cache: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+      - name: Enable yarn
+        run: corepack enable && corepack prepare yarn@1.22.22 --activate
+      - name: Install node modules
+        run: yarn install --frozen-lockfile
+      - name: Build assets
+        run: yarn build && yarn build:css
+      - name: Run tests
+        run: bin/rails test
+
+  precompile:
+    runs-on: ubuntu-latest
+    env:
+      SECRET_KEY_BASE_DUMMY: 1
+      RAILS_ENV: production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "4.0.7"
+          bundler-cache: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+      - name: Enable yarn
+        run: corepack enable && corepack prepare yarn@1.22.22 --activate
+      - name: Install node modules
+        run: yarn install --frozen-lockfile
+      - name: Build assets
+        run: yarn build && yarn build:css
+      - name: Precompile assets
+        run: bin/rails assets:precompile

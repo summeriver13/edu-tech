@@ -1,38 +1,57 @@
 <div class="p-4 p-md-5 mb-4 rounded text-body-emphasis bg-body-secondary">
-    <div class="col-lg-6 px-0">
-      <h1 class="display-4 fst-italic"><%= @course.title%></h1>
-      <p class="lead my-3"><%= @course.description %></p>
-      <p class="lead mb-0"><%= link_to "了解更多", information_course_path(@course), class: 'text-body-emphasis fw-bold' %></p>
-    </div>
+  <div class="col-lg-6 px-0">
+    <h1 class="display-4 fst-italic"><%= @course.title %></h1>
+    <p class="lead my-3"><%= @course.description %></p>
+    <p class="lead mb-0"><%= link_to "了解更多", information_course_path(@course), class: 'text-body-emphasis fw-bold' %></p>
+  </div>
 </div>
 
-<div class="row mb-2">
+<div class="row g-4">
   <div class="col-md-6">
-    <div class="row g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
-      <div class="col p-4 d-flex flex-column position-static">
-        <strong class="d-inline-block mb-2 text-primary-emphasis">Resource 资源</strong>
-        <h3 class="mb-0">课程 资源</h3>
-        <div class="mb-1 text-body-secondary">Nov 12</div>
-        <p class="card-text mb-auto">This is a wider card with supporting text below as a natural lead-in to additional content.</p>
-        <%= link_to "Continue exploring resource", course_resources_path(@course), class: "icon-link gap-1 icon-link-hover stretched-link"%>
-      </div>
-      <div class="col-auto d-none d-lg-block">
-        <svg class="bd-placeholder-img" width="200" height="250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: Thumbnail" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="#55595c"></rect><text x="50%" y="50%" fill="#eceeef" dy=".3em">Thumbnail</text></svg>
-      </div>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h2 class="h4 mb-0">资源</h2>
+      <%= link_to "全部资源", course_resources_path(@course), class: "btn btn-sm btn-outline-secondary" %>
     </div>
+
+    <% if @resources.any? %>
+      <div class="list-group">
+        <% @resources.each do |resource| %>
+          <%= link_to course_resource_path(@course, resource), class: "list-group-item list-group-item-action d-flex justify-content-between align-items-center" do %>
+            <span>
+              <%= resource.name %>
+              <span class="badge text-bg-light"><%= resource.resource_type %></span>
+            </span>
+            <% if resource.video.present? %>
+              <span class="badge text-bg-primary">视频</span>
+            <% end %>
+          <% end %>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="text-body-secondary">暂无资源。</p>
+    <% end %>
   </div>
+
   <div class="col-md-6">
-    <div class="row g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
-      <div class="col p-4 d-flex flex-column position-static">
-        <strong class="d-inline-block mb-2 text-success-emphasis">Activity 活动</strong>
-        <h3 class="mb-0">课程 活动</h3>
-        <div class="mb-1 text-body-secondary">Nov 11</div>
-        <p class="mb-auto">This is a wider card with supporting text below as a natural lead-in to additional content.</p>
-        <%= link_to "Continue exploring activity", course_activities_path(@course), class: "icon-link gap-1 icon-link-hover stretched-link"%>
-      </div>
-      <div class="col-auto d-none d-lg-block">
-        <svg class="bd-placeholder-img" width="200" height="250" xmlns="/katana-zero.png" role="img" aria-label="Placeholder: Thumbnail" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="#55595c"></rect><text x="50%" y="50%" fill="#eceeef" dy=".3em">Thumbnail</text></svg>
-      </div>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h2 class="h4 mb-0">活动</h2>
+      <%= link_to "全部活动", course_activities_path(@course), class: "btn btn-sm btn-outline-secondary" %>
     </div>
+
+    <% if @activities.any? %>
+      <div class="list-group">
+        <% @activities.each do |activity| %>
+          <%= link_to course_activity_path(@course, activity), class: "list-group-item list-group-item-action" do %>
+            <div class="d-flex justify-content-between">
+              <strong><%= activity.activity_type %></strong>
+              <span class="small text-body-secondary"><%= activity.location %></span>
+            </div>
+            <div class="small text-body-secondary"><%= activity.start_time %></div>
+          <% end %>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="text-body-secondary">暂无活动。</p>
+    <% end %>
   </div>
 </div>

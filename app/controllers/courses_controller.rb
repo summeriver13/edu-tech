@@ -16,6 +16,8 @@ class CoursesController < ApplicationController
   end
 
   def show
+    @resources = @course.resources.order(:name)
+    @activities = @course.activities.order(start_time: :desc)
   end
 
   def information

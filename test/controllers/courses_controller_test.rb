@@ -54,6 +54,13 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "should list resources and activities on the course page" do
+    get course_url(@course)
+    assert_response :success
+    assert_select "a", text: /#{resources(:one).name}/
+    assert_select "a", text: /#{activities(:one).activity_type}/
+  end
+
   test "should get edit" do
     get edit_course_url(@course)
     assert_response :success
