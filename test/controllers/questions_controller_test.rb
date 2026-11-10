@@ -18,6 +18,17 @@ class QuestionsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "系统开发生命周期", Question.order(:id).last.answer
   end
 
+  test "a question may belong to a lesson" do
+    lesson = @course.lessons.create!(title: "第一课", position: 1)
+    log_in_as users(:one)
+
+    post course_questions_url(@course), params: {
+      question: { kind: "short", stem: "课时题？", answer: "是", lesson_id: lesson.id }
+    }
+
+    assert_equal lesson, Question.order(:id).last.lesson
+  end
+
   test "choices are split by line" do
     log_in_as users(:one)
     post course_questions_url(@course), params: {

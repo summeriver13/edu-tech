@@ -41,6 +41,42 @@ class PracticeControllerTest < ActionDispatch::IntegrationTest
     assert_equal assessments(:quiz), Attempt.order(:id).last.assessment
   end
 
+  test "a lesson round only draws the questions of that lesson" do
+    lesson = @course.lessons.create!(title: "第一课", position: 1)
+    questions(:single).update!(lesson: lesson)
+    log_in_as @student
+
+    post course_practice_url(@course), params: {
+      lesson_id: lesson.id,
+      question_ids: [ questions(:single).id, questions(:boolean).id ],
+      responses: { questions(:single).id.to_s => "分析", questions(:boolean).id.to_s => "true" }
+    }
+
+    attempt = Attempt.order(:id).last
+    assert_equal lesson, attempt.lesson
+    assert_equal 1, attempt.total
+    assert_equal 1, attempt.score
+    assert_equal "得分 100%，最好 100%。", flash[:notice]
+  end
+
+  test "the lesson keeps the best score across rounds" do
+    lesson = @course.lessons.create!(title: "第一课", position: 1)
+    questions(:single).update!(lesson: lesson)
+    log_in_as @student
+
+    post course_practice_url(@course), params: {
+      lesson_id: lesson.id, question_ids: [ questions(:single).id ],
+      responses: { questions(:single).id.to_s => "设计" }
+    }
+    post course_practice_url(@course), params: {
+      lesson_id: lesson.id, question_ids: [ questions(:single).id ],
+      responses: { questions(:single).id.to_s => "分析" }
+    }
+
+    assert_equal 100, lesson.reload.best_score_for(@student)
+    assert_equal "得分 100%，最好 100%。", flash[:notice]
+  end
+
   test "wrong answers land in the mistake book" do
     log_in_as @student
     post course_practice_url(@course), params: {

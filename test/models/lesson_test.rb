@@ -25,6 +25,16 @@ class LessonTest < ActiveSupport::TestCase
     assert_not lesson.completed_by?(users(:one))
   end
 
+  test "keeps the best score of a learner" do
+    lesson = lessons(:one)
+    lesson.attempts.create!(course: courses(:one), user: users(:two), score: 1, total: 2, taken_at: Time.current)
+    lesson.attempts.create!(course: courses(:one), user: users(:two), score: 2, total: 2, taken_at: Time.current)
+    lesson.attempts.create!(course: courses(:one), user: users(:one), score: 0, total: 2, taken_at: Time.current)
+
+    assert_equal 100, lesson.best_score_for(users(:two))
+    assert_nil lesson.best_score_for(nil)
+  end
+
   test "counts progress across the course" do
     course = courses(:one)
     course.lessons.create!(title: "第二课", position: 2)

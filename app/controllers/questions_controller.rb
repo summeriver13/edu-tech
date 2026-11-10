@@ -4,7 +4,7 @@ class QuestionsController < ApplicationController
   before_action :require_course_manager
 
   def index
-    @questions = @course.questions.order(:topic, :id)
+    @questions = @course.questions.includes(:lesson).order(:topic, :id)
   end
 
   def new
@@ -37,6 +37,6 @@ class QuestionsController < ApplicationController
   end
 
   def question_params
-    params.require(:question).permit(:kind, :topic, :slo, :stem, :answer, :explanation, :source)
+    params.require(:question).permit(:kind, :topic, :slo, :stem, :answer, :explanation, :source, :lesson_id)
   end
 end

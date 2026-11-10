@@ -14,6 +14,18 @@ class LessonsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".lesson-body h1", text: "第一课"
   end
 
+  test "shows the lesson quiz with the best score" do
+    @lesson.questions.create!(course: @course, kind: "short", stem: "题干？", answer: "答案")
+    @lesson.attempts.create!(course: @course, user: users(:two), score: 1, total: 1, taken_at: Time.current)
+    log_in_as users(:two)
+
+    get course_lesson_url(@course, @lesson)
+
+    assert_select ".fw-semibold", text: "本课测验"
+    assert_select ".small", text: /最好 100%/
+    assert_select "a", text: "再测一次"
+  end
+
   test "a member marks a lesson complete" do
     log_in_as users(:two)
 

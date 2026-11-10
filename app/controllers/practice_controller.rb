@@ -7,15 +7,16 @@ class PracticeController < ApplicationController
 
   def show
     @assessment = quiz_assessment
-    @questions = @course.questions.order(Arel.sql("RANDOM()")).limit(QUESTION_LIMIT)
+    @lesson = practice_lesson
+    @questions = question_scope.order(Arel.sql("RANDOM()")).limit(QUESTION_LIMIT)
   end
 
   def create
-    questions = @course.questions.where(id: Array(params[:question_ids])).to_a
+    questions = question_scope.where(id: Array(params[:question_ids])).to_a
     return redirect_to course_practice_path(@course), alert: "没有可作答的题目。" if questions.empty?
 
     responses = params.fetch(:responses, {}).to_unsafe_h
-    attempt = @course.attempts.new(user: current_user, assessment: quiz_assessment, taken_at: Time.current, total: questions.size)
+    attempt = @course.attempts.new(user: current_user, assessment: quiz_assessment, lesson: practice_lesson, taken_at: Time.current, total: questions.size)
     attempt.score = questions.count { |question| question.correct?(responses[question.id.to_s]) }
 
     Attempt.transaction do
@@ -26,7 +27,7 @@ class PracticeController < ApplicationController
       end
     end
 
-    redirect_to course_attempt_path(@course, attempt), notice: "得分 #{attempt.percent}%。"
+    redirect_to course_attempt_path(@course, attempt), notice: practice_notice(attempt)
   end
 
   def mistakes
@@ -40,6 +41,22 @@ class PracticeController < ApplicationController
 
   def set_course
     @course = Course.find(params[:course_id])
+  end
+
+  def question_scope
+    practice_lesson ? practice_lesson.questions : @course.questions
+  end
+
+  def practice_lesson
+    return @practice_lesson if defined?(@practice_lesson)
+
+    @practice_lesson = params[:lesson_id].present? ? @course.lessons.find_by(id: params[:lesson_id]) : nil
+  end
+
+  def practice_notice(attempt)
+    return "得分 #{attempt.percent}%。" if attempt.lesson.nil?
+
+    "得分 #{attempt.percent}%，最好 #{attempt.lesson.best_score_for(current_user)}%。"
   end
 
   def quiz_assessment

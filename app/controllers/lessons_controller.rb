@@ -4,6 +4,7 @@ class LessonsController < ApplicationController
 
   def show
     @completed = @lesson.completed_by?(logged_in? ? current_user : nil)
+    @best_score = @lesson.best_score_for(logged_in? ? current_user : nil)
     @previous = @course.lessons.where("position < ?", @lesson.position).last
     @next = @course.lessons.where("position > ?", @lesson.position).first
   end

@@ -15,6 +15,14 @@ class QuestionTest < ActiveSupport::TestCase
     assert_not questions(:single).correct?(nil)
   end
 
+  test "rejects a lesson from another course" do
+    question = questions(:single)
+    question.lesson = lessons(:one)
+
+    assert_not question.valid?
+    assert_includes question.errors[:lesson], "必须属于同一课程"
+  end
+
   test "rejects an unknown kind" do
     question = Question.new(course: courses(:two), stem: "x", answer: "y", kind: "essay")
     assert_not question.valid?

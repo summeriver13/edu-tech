@@ -9,6 +9,20 @@
   </div>
 </div>
 
+<% if @lesson.questions.any? %>
+  <div class="card mb-4">
+    <div class="card-body d-flex flex-wrap justify-content-between align-items-center gap-2">
+      <div>
+        <div class="fw-semibold">本课测验</div>
+        <div class="small text-body-secondary">
+          <%= @lesson.questions.count %> 题<% if @best_score %> · 最好 <%= @best_score %>%<% end %>
+        </div>
+      </div>
+      <%= link_to @best_score ? "再测一次" : "开始测验", course_practice_path(@course, lesson_id: @lesson.id), class: "btn btn-sm btn-primary" %>
+    </div>
+  </div>
+<% end %>
+
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
   <div class="d-flex flex-wrap gap-2">
     <% if @previous %>

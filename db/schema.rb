@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_09_220000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_09_221000) do
   create_table "activities", force: :cascade do |t|
     t.integer "course_id", null: false
     t.string "activity_type"
@@ -72,8 +72,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_09_220000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "assessment_id"
+    t.integer "lesson_id"
     t.index ["assessment_id"], name: "index_attempts_on_assessment_id"
     t.index ["course_id"], name: "index_attempts_on_course_id"
+    t.index ["lesson_id"], name: "index_attempts_on_lesson_id"
     t.index ["user_id"], name: "index_attempts_on_user_id"
   end
 
@@ -201,7 +203,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_09_220000) do
     t.string "source"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "lesson_id"
     t.index ["course_id"], name: "index_questions_on_course_id"
+    t.index ["lesson_id"], name: "index_questions_on_lesson_id"
   end
 
   create_table "resources", force: :cascade do |t|
@@ -246,6 +250,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_09_220000) do
   add_foreign_key "assessments", "courses"
   add_foreign_key "attempts", "assessments"
   add_foreign_key "attempts", "courses"
+  add_foreign_key "attempts", "lessons"
   add_foreign_key "attempts", "users"
   add_foreign_key "contributions", "courses"
   add_foreign_key "contributions", "users"
@@ -260,6 +265,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_09_220000) do
   add_foreign_key "lesson_completions", "users"
   add_foreign_key "lessons", "courses"
   add_foreign_key "questions", "courses"
+  add_foreign_key "questions", "lessons"
   add_foreign_key "resources", "courses"
   add_foreign_key "submissions", "assessments"
   add_foreign_key "submissions", "deliverables"
