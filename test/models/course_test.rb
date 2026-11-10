@@ -5,6 +5,29 @@ class CourseTest < ActiveSupport::TestCase
     assert courses(:one).valid?
   end
 
+  test "computes the week number from the term start" do
+    course = courses(:one)
+    course.update!(week1_start: Date.new(2026, 9, 14), time_zone: "Australia/Sydney")
+
+    assert_equal 1, course.week_of(Time.utc(2026, 9, 16, 2, 0))
+    assert_equal 2, course.week_of(Time.utc(2026, 9, 24, 0, 0))
+    assert_nil course.week_of(Time.utc(2026, 9, 1))
+  end
+
+  test "renders times in the course zone" do
+    course = courses(:one)
+    course.update!(time_zone: "Australia/Sydney")
+
+    assert_equal "2026-11-05 17:50", course.local_time(Time.utc(2026, 11, 5, 6, 50)).strftime("%Y-%m-%d %H:%M")
+  end
+
+  test "rejects an unknown time zone" do
+    course = courses(:one)
+    course.time_zone = "Mars/Olympus"
+
+    assert_not course.valid?
+    assert_includes course.errors[:time_zone], "不是有效时区"
+  end
   test "requires title, description and course_number" do
     course = Course.new
     assert_not course.valid?

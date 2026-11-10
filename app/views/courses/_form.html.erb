@@ -41,6 +41,22 @@
     <%= form.text_field :repo_url, class: "form-control" %>
     <div class="form-text">git 地址，例如 https://github.com/user/course-cs101.git。仓库根目录需有 course.yml。</div>
   </div>
+  <div class="row g-3 mb-3">
+    <div class="col-md-4">
+      <%= form.label :week1_start, "第 1 周起始日", class: "form-label" %>
+      <%= form.date_field :week1_start, class: "form-control" %>
+    </div>
+    <div class="col-md-4">
+      <%= form.label :time_zone, "时区", class: "form-label" %>
+      <%= form.text_field :time_zone, class: "form-control" %>
+      <div class="form-text">IANA 名称，例如 Asia/Shanghai。</div>
+    </div>
+    <div class="col-md-4">
+      <%= form.label :term_weeks, "学期周数", class: "form-label" %>
+      <%= form.number_field :term_weeks, min: 1, max: 52, class: "form-control" %>
+    </div>
+  </div>
+
   <br/>
   <div>
     <%= form.submit %>

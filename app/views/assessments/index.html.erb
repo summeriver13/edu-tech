@@ -35,7 +35,14 @@
             <% if assessment.group_work %><span class="badge text-bg-info">小组</span><% end %>
           </td>
           <td class="text-end"><%= number_to_percentage(assessment.weight, precision: 0) %></td>
-          <td><%= assessment.due_at ? assessment.due_at.strftime("%Y-%m-%d %H:%M") : "无" %></td>
+          <td>
+            <% due = @course.local_time(assessment.due_at) %>
+            <% if due %>
+              <%= [ week_label(@course, assessment.due_at), due.strftime("%Y-%m-%d %H:%M") ].compact.join(" ") %>
+            <% else %>
+              无
+            <% end %>
+          </td>
           <td class="small text-body-secondary"><%= assessment.scope %></td>
         </tr>
       <% end %>

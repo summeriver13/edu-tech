@@ -14,7 +14,7 @@
   <span class="badge text-bg-secondary"><%= Assessment::KIND_LABELS.fetch(@assessment.kind, @assessment.kind) %></span>
   <%= number_to_percentage(@assessment.weight, precision: 0) %>
   <% if @assessment.group_work %><span class="badge text-bg-info">小组</span><% end %>
-  <% if @assessment.due_at %> · 截止 <%= @assessment.due_at.strftime("%Y-%m-%d %H:%M") %><% end %>
+  <% if @assessment.due_at %> · 截止 <%= [ week_label(@course, @assessment.due_at), @course.local_time(@assessment.due_at).strftime("%Y-%m-%d %H:%M") ].compact.join(" ") %><% end %>
   <% if @assessment.scope.present? %> · 范围 <%= @assessment.scope %><% end %>
 </p>
 

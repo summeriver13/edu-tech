@@ -109,6 +109,10 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
           - type: 直播
             start: 2026-03-02T19:00:00+08:00
             location: 线上
+        term:
+          week1_start: 2026-08-31
+          time_zone: Australia/Sydney
+          weeks: 18
         assessments:
           - key: quiz
             title: 仓库测验
@@ -136,6 +140,8 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
       assert @course.reload.commit_sha.present?
       assert_equal "仓库标题", @course.title
       assert Resource.exists?(name: "仓库讲义")
+      assert_equal Date.new(2026, 8, 31), @course.reload.week1_start
+      assert_equal "Australia/Sydney", @course.time_zone
       assert Activity.exists?(activity_type: "直播")
       assert_equal 100, @course.assessments.where(key: %w[ quiz exam ]).sum(:weight)
       assert_equal %w[ quiz exam ], @course.assessments.where(key: %w[ quiz exam ]).order(:weight).pluck(:kind)

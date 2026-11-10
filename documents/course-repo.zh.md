@@ -23,6 +23,11 @@ resources:
     type: document
     url: https://example.com/handout.pdf
 
+term:
+  week1_start: 2026-08-31   # 第 1 周起始日
+  time_zone: Australia/Sydney
+  weeks: 18
+
 activities:
   - type: 直播
     start: 2026-03-02T19:00:00+08:00
@@ -53,6 +58,7 @@ assessments:
 | 字段 | 说明 |
 |---|---|
 | `course.title` / `course.description` / `course.credit` | 可选；只覆盖这三个字段，`course_number` 不动 |
+| `term.week1_start` / `time_zone` / `weeks` | 可选；写入课程的第 1 周起始日、IANA 时区与学期周数 |
 | `resources[].name` | 必需；同名资源视为同一条，更新其余字段 |
 | `resources[].type` | 写入 `resource_type` |
 | `resources[].url` | 必需；当前不支持从仓库导入文件 |

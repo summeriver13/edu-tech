@@ -14,7 +14,11 @@
       <% @activities.each do |activity| %>
         <tr>
           <td><%= link_to activity.activity_type, course_activity_path(@course, activity) %></td>
-          <td><%= activity.start_time %></td>
+          <td>
+            <% if activity.start_time %>
+              [<%= week_label(@course, activity.start_time) %>] <%= @course.local_time(activity.start_time).strftime("%Y-%m-%d %H:%M") %>
+            <% end %>
+          </td>
           <td><%= activity.end_time %></td>
           <td><%= activity.location %></td>
         </tr>

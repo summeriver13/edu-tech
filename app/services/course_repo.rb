@@ -68,6 +68,7 @@ class CourseRepo
 
     ActiveRecord::Base.transaction do
       update_course(manifest["course"] || {})
+      sync_term(manifest["term"] || {})
       sync_resources(manifest["resources"] || [])
       sync_activities(manifest["activities"] || [])
       sync_assessments(assessments)
@@ -104,6 +105,17 @@ class CourseRepo
       )
       assessment.save!
     end
+  end
+
+  def sync_term(term)
+    return if term.blank?
+
+    @course.assign_attributes(
+      week1_start: term["week1_start"] || @course.week1_start,
+      time_zone: term["time_zone"].presence || @course.time_zone,
+      term_weeks: term["weeks"] || @course.term_weeks
+    )
+    @course.save!
   end
 
   def update_course(attributes)

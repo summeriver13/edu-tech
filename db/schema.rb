@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_09_203000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_09_210000) do
   create_table "activities", force: :cascade do |t|
     t.integer "course_id", null: false
     t.string "activity_type"
@@ -101,6 +101,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_09_203000) do
     t.string "repo_url"
     t.string "commit_sha"
     t.datetime "synced_at"
+    t.string "time_zone", default: "Asia/Shanghai", null: false
+    t.date "week1_start"
+    t.integer "term_weeks", default: 18, null: false
     t.index ["course_number"], name: "index_courses_on_course_number", unique: true
   end
 

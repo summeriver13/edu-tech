@@ -3,6 +3,10 @@
     <h1 class="display-4 fst-italic"><%= @course.title %></h1>
     <p class="lead my-3"><%= @course.description %></p>
     <p class="lead mb-0"><%= link_to "了解更多", information_course_path(@course), class: 'text-body-emphasis fw-bold' %></p>
+    <p class="small text-body-secondary mt-2 mb-0">
+      第 1 周 <%= @course.week1_start || "未设置" %> · <%= @course.time_zone %>
+      <% if @course.current_week %> · 当前 W<%= @course.current_week %><% end %>
+    </p>
   </div>
 </div>
 
@@ -75,7 +79,9 @@
               <strong><%= activity.activity_type %></strong>
               <span class="small text-body-secondary"><%= activity.location %></span>
             </div>
-            <div class="small text-body-secondary"><%= activity.start_time %></div>
+            <div class="small text-body-secondary">
+              <% if activity.start_time %>[<%= week_label(@course, activity.start_time) %>] <%= @course.local_time(activity.start_time).strftime("%Y-%m-%d %H:%M") %><% end %>
+            </div>
           <% end %>
         <% end %>
       </div>
