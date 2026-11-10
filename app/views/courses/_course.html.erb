@@ -15,10 +15,11 @@
     <%= course.description %>
   </p>
 
-  <p>
-    <label class="form-label">Image url:</label>
-    <%= course.image_url %>
-  </p>
+  <% if course.cover.present? %>
+    <p>
+      <%= image_tag course.cover.url, alt: course.title, class: "img-fluid rounded mb-3" %>
+    </p>
+  <% end %>
 
   <p>
     <label class="form-label">Credit:</label>

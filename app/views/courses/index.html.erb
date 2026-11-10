@@ -16,8 +16,8 @@
       <% @courses.each do |course| %>
         <div class="col">
           <div class="card h-100 shadow-sm">
-            <% if course.image_url.present? %>
-              <%= image_tag course.image_url, class: "card-img-top", alt: course.title %>
+            <% if course.cover.present? %>
+              <%= image_tag course.cover.url, class: "card-img-top", alt: course.title %>
             <% end %>
             <div class="card-body">
               <h3 class="h5 card-title"><%= link_to course.title, course_path(course), class: "text-decoration-none" %></h3>

@@ -9,7 +9,6 @@ seed_courses = [
     course_number: "CS101",
     title: "程序设计入门",
     description: "从变量、控制流到函数，用 Ruby 建立编程基础。",
-    image_url: "https://placehold.co/600x400",
     credit: 3.0,
     resources: [
       { name: "第 1 讲 环境搭建", resource_type: "video", url: "https://example.com/cs101/lecture-1" },
@@ -23,7 +22,6 @@ seed_courses = [
     course_number: "CS201",
     title: "Web 开发实践",
     description: "用 Rails 完成课程管理系统的需求分析、开发与部署。",
-    image_url: "https://placehold.co/600x401",
     credit: 4.0,
     resources: [
       { name: "Rails 指南", resource_type: "link", url: "https://guides.rubyonrails.org" }
@@ -36,7 +34,6 @@ seed_courses = [
     course_number: "CS301",
     title: "数据库系统",
     description: "关系模型、SQL 与事务，理解数据在系统中的位置。",
-    image_url: "https://placehold.co/600x402",
     credit: 3.0,
     resources: [
       { name: "实验手册", resource_type: "document", url: "https://example.com/cs301/lab.pdf" }

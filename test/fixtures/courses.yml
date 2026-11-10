@@ -3,13 +3,11 @@
 one:
   title: Ruby Basics
   description: Introduction to the Ruby language
-  image_url: https://placehold.co/600x400
   credit: 1.5
   course_number: CS101
 
 two:
   title: Rails in Practice
   description: Building web applications with Rails
-  image_url: https://placehold.co/600x401
   credit: 3.0
   course_number: CS102
