@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_09_221000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_09_223000) do
   create_table "activities", force: :cascade do |t|
     t.integer "course_id", null: false
     t.string "activity_type"
@@ -77,6 +77,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_09_221000) do
     t.index ["course_id"], name: "index_attempts_on_course_id"
     t.index ["lesson_id"], name: "index_attempts_on_lesson_id"
     t.index ["user_id"], name: "index_attempts_on_user_id"
+  end
+
+  create_table "certificates", force: :cascade do |t|
+    t.integer "course_id", null: false
+    t.integer "user_id", null: false
+    t.string "serial", null: false
+    t.datetime "issued_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["course_id", "user_id"], name: "index_certificates_on_course_id_and_user_id", unique: true
+    t.index ["course_id"], name: "index_certificates_on_course_id"
+    t.index ["serial"], name: "index_certificates_on_serial", unique: true
+    t.index ["user_id"], name: "index_certificates_on_user_id"
   end
 
   create_table "contributions", force: :cascade do |t|
@@ -204,6 +217,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_09_221000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "lesson_id"
+    t.string "key"
+    t.index ["course_id", "key"], name: "index_questions_on_course_id_and_key", unique: true, where: "key IS NOT NULL"
     t.index ["course_id"], name: "index_questions_on_course_id"
     t.index ["lesson_id"], name: "index_questions_on_lesson_id"
   end
@@ -252,6 +267,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_09_221000) do
   add_foreign_key "attempts", "courses"
   add_foreign_key "attempts", "lessons"
   add_foreign_key "attempts", "users"
+  add_foreign_key "certificates", "courses"
+  add_foreign_key "certificates", "users"
   add_foreign_key "contributions", "courses"
   add_foreign_key "contributions", "users"
   add_foreign_key "course_memberships", "courses"

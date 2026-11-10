@@ -5,6 +5,7 @@ class Question < ApplicationRecord
   belongs_to :lesson, optional: true
   has_many :answers, dependent: :destroy
 
+  validates :key, uniqueness: { scope: :course_id }, allow_nil: true
   validates :stem, presence: true
   validates :answer, presence: true
   validates :kind, inclusion: { in: KINDS }

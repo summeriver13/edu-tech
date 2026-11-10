@@ -81,6 +81,7 @@ assessments:
 | `assessments[].deliverables[]` | 可选；`name` 必需且评估内唯一，`due_at` 可选，按名称 upsert |
 | `assessments[].ai_policy` | 可选；`not_permitted` 或 `allowed_with_declaration`，留空表示未规定 |
 | `lessons[]` | 可选；`path` 必需且相对仓库根目录，`title` 可选，按路径 upsert |
+| `questions[]` | 可选；`key` 必需且课程内唯一，`lesson` 按课时路径关联，按 `key` upsert |
 
 ## 课时
 
@@ -91,6 +92,24 @@ lessons:
 ```
 
 同步按 `path` 定位课时，写入标题、正文与顺序（数组下标 + 1）。正文按 Markdown 渲染，脚本与事件属性在渲染时移除。路径越出仓库时报「课时路径越界」，文件缺失时报「课时文件不存在」。
+
+## 题库
+
+```yaml
+questions:
+  - key: q1                 # 必需，课程内唯一，用于定位
+    kind: single            # single / boolean / short
+    stem: 哪个阶段先做？
+    choices: [分析, 设计]    # 简答题可省略
+    answer: 分析
+    explanation: 分析回答 what。
+    topic: SDLC
+    slo: SLO1
+    source: 2026 quiz
+    lesson: docs/01-setup.md # 可选，按课时路径关联
+```
+
+题目按 `key` upsert；缺少 `key` 报「题目缺少 key」，引用的课时不存在报「题目引用的课时不存在」。
 
 ## 同步规则
 

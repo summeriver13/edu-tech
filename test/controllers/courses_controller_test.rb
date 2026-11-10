@@ -62,6 +62,16 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     assert_select "a", text: /#{activities(:one).activity_type}/
   end
 
+  test "shows the completion record link on the course page" do
+    @course.lessons.first.lesson_completions.create!(user: users(:two))
+    certificate = Certificate.issue_for(users(:two), @course)
+    log_in_as users(:two)
+
+    get course_url(@course)
+
+    assert_select "a", text: "查看完成记录", href: certificate_path(certificate.serial)
+  end
+
   test "shows the term policies on the course page" do
     @course.update!(census_at: Date.new(2026, 10, 5), min_attendance: 80, late_penalty_percent: 5, late_penalty_max_days: 4)
     get course_url(@course)
@@ -116,6 +126,13 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
           title: 仓库标题
         lessons:
           - path: docs/01.md
+        questions:
+          - key: q1
+            kind: single
+            stem: 哪个先？
+            choices: [分析, 设计]
+            answer: 分析
+            lesson: docs/01.md
         resources:
           - name: 仓库讲义
             type: document
@@ -196,6 +213,9 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
       assert_equal "第一课", lesson.title
       assert_equal 1, lesson.position
       assert_includes lesson.body, "正文"
+      synced_question = Question.find_by!(key: "q1")
+      assert_equal lesson, synced_question.lesson
+      assert_equal %w[ 分析 设计 ], synced_question.choices
     end
   ensure
     FileUtils.rm_rf(CourseRepo.repo_root.join(@course.course_number))
@@ -262,6 +282,89 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     end
   ensure
     FileUtils.rm_rf(CourseRepo.repo_root.join(@course.course_number))
+  end
+
+  test "sync rejects a question without a key" do
+    Dir.mktmpdir do |dir|
+      File.write(File.join(dir, "course.yml"), <<~YAML)
+        questions:
+          - stem: 无键题目
+            kind: short
+            answer: 答案
+      YAML
+      git_commit(dir)
+      @course.update!(repo_url: dir)
+      log_in_as users(:two)
+
+      assert_no_difference "Question.count" do
+        post sync_course_url(@course)
+      end
+
+      assert_match "题目缺少 key", flash[:alert]
+    end
+  ensure
+    FileUtils.rm_rf(CourseRepo.repo_root.join(@course.course_number))
+  end
+
+  test "preview lists changes without writing them" do
+    Dir.mktmpdir do |dir|
+      FileUtils.mkdir_p(File.join(dir, "docs"))
+      File.write(File.join(dir, "docs", "02.md"), "# 新课时\n\n正文。\n")
+      File.write(File.join(dir, "course.yml"), <<~YAML)
+        course:
+          title: 预览标题
+        lessons:
+          - path: docs/02.md
+        questions:
+          - key: q1
+            kind: short
+            stem: 题干？
+            answer: 答案
+            lesson: docs/02.md
+      YAML
+      git_commit(dir)
+      @course.update!(repo_url: dir)
+      log_in_as users(:two)
+
+      assert_no_difference [ "Lesson.count", "Question.count" ] do
+        get preview_course_url(@course)
+      end
+
+      assert_response :success
+      assert_select ".badge", text: "新增", count: 2
+      assert_select ".badge", text: "更新", count: 1
+      assert_select "li", text: /课程信息/
+      assert_select "li", text: %r{课时 docs/02.md}
+      assert_select "li", text: /题目 q1/
+    end
+  ensure
+    FileUtils.rm_rf(CourseRepo.repo_root.join(@course.course_number))
+  end
+
+  test "preview reports no changes after a sync" do
+    Dir.mktmpdir do |dir|
+      File.write(File.join(dir, "course.yml"), "course:\n  title: 一致标题\n")
+      git_commit(dir)
+      @course.update!(repo_url: dir)
+      log_in_as users(:two)
+      post sync_course_url(@course)
+
+      get preview_course_url(@course)
+
+      assert_response :success
+      assert_select "p", text: /没有变化/
+    end
+  ensure
+    FileUtils.rm_rf(CourseRepo.repo_root.join(@course.course_number))
+  end
+
+  test "student cannot preview a course sync" do
+    log_in_as users(:two)
+
+    get preview_course_url(courses(:two))
+
+    assert_redirected_to root_url
+    assert_equal "需要课程管理权限。", flash[:alert]
   end
 
   test "sync rejects a lesson outside the repository" do

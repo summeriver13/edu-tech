@@ -17,8 +17,24 @@ class CourseRepo
     end
   end
 
+  Preview = Data.define(:success, :message, :changes) do
+    def success?
+      success
+    end
+  end
+
   def initialize(course)
     @course = course
+  end
+
+  def preview
+    return Preview.new(success: false, message: "课程未配置仓库地址。", changes: []) if @course.repo_url.blank?
+
+    checkout
+    changes = CoursePlan.new(@course, repo_dir).changes(load_manifest)
+    Preview.new(success: true, message: "已读取 #{current_sha.first(7)}。", changes: changes)
+  rescue Error, Psych::SyntaxError => error
+    Preview.new(success: false, message: "预览失败：#{error.message}", changes: [])
   end
 
   def sync
@@ -76,6 +92,7 @@ class CourseRepo
       sync_activities(manifest["activities"] || [])
       sync_lessons(manifest["lessons"] || [])
       sync_assessments(assessments)
+      sync_questions(manifest["questions"] || [])
       @course.update!(commit_sha: current_sha, synced_at: Time.current)
     end
   end
@@ -94,23 +111,13 @@ class CourseRepo
       path = item["path"]
       raise Error, "课时缺少 path。" if path.blank?
 
-      file = lesson_file(path)
-      body = File.read(file)
+      body = RepoFile.read(repo_dir, path)
       lesson = @course.lessons.find_or_initialize_by(source_path: path)
       lesson.position = index + 1
       lesson.title = item["title"].presence || lesson_title(body, path)
       lesson.body = body
       lesson.save!
     end
-  end
-
-  def lesson_file(path)
-    root = Pathname(repo_dir).expand_path
-    file = root.join(path).expand_path
-    raise Error, "课时路径越界：#{path}。" unless file.to_s.start_with?(root.to_s + File::SEPARATOR)
-    raise Error, "课时文件不存在：#{path}。" unless file.file?
-
-    file
   end
 
   def lesson_title(body, path)
@@ -149,6 +156,33 @@ class CourseRepo
       assessment.save!
       sync_deliverables(assessment, item["deliverables"])
     end
+  end
+
+  def sync_questions(items)
+    items.each do |item|
+      key = item["key"]
+      raise Error, "题目缺少 key。" if key.blank?
+
+      question = @course.questions.find_or_initialize_by(key: key)
+      question.assign_attributes(
+        kind: item["kind"].presence || "single",
+        stem: item["stem"],
+        choices: Array(item["choices"]).map(&:to_s),
+        answer: item["answer"],
+        explanation: item["explanation"],
+        topic: item["topic"],
+        slo: item["slo"],
+        source: item["source"],
+        lesson: lesson_by_path(item["lesson"])
+      )
+      question.save!
+    end
+  end
+
+  def lesson_by_path(path)
+    return nil if path.blank?
+
+    @course.lessons.find_by(source_path: path) || raise(Error, "题目引用的课时不存在：#{path}。")
   end
 
   def sync_deliverables(assessment, items)
