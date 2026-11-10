@@ -1,10 +1,10 @@
 class CoursesController < ApplicationController
   PER_PAGE = 9
 
-  before_action :require_login, only: %i[ new create edit update destroy ]
+  before_action :require_login, only: %i[ new create edit update destroy sync ]
   before_action :require_admin, only: %i[ new create destroy ]
-  before_action :set_course, only: %i[ show edit update destroy ]
-  before_action :require_course_manager, only: %i[ edit update ]
+  before_action :set_course, only: %i[ show edit update destroy sync ]
+  before_action :require_course_manager, only: %i[ edit update sync ]
 
   # GET /courses or /courses.json
   def index
@@ -31,6 +31,17 @@ class CoursesController < ApplicationController
 
   # GET /courses/1/edit
   def edit
+  end
+
+  # POST /courses/1/sync
+  def sync
+    result = CourseRepo.new(@course).sync
+
+    if result.success?
+      redirect_to course_path(@course), notice: result.message, status: :see_other
+    else
+      redirect_to course_path(@course), alert: result.message, status: :see_other
+    end
   end
 
   # POST /courses or /courses.json

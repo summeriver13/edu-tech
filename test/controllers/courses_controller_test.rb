@@ -1,4 +1,5 @@
 require "test_helper"
+require "tmpdir"
 
 class CoursesControllerTest < ActionDispatch::IntegrationTest
   setup do
@@ -77,5 +78,87 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     end
 
     assert_redirected_to courses_url
+  end
+
+  test "course teacher can update the course" do
+    log_in_as users(:two)
+    patch course_url(@course), params: { course: { title: "Teacher edit", description: @course.description, course_number: @course.course_number } }
+
+    assert_redirected_to course_url(@course)
+    assert_equal "Teacher edit", @course.reload.title
+  end
+
+  test "student cannot edit another course" do
+    log_in_as users(:two)
+    get edit_course_url(courses(:two))
+
+    assert_redirected_to root_url
+    assert_equal "需要课程管理权限。", flash[:alert]
+  end
+
+  test "sync imports the course repo manifest" do
+    Dir.mktmpdir do |dir|
+      File.write(File.join(dir, "course.yml"), <<~YAML)
+        course:
+          title: 仓库标题
+        resources:
+          - name: 仓库讲义
+            type: document
+            url: https://example.com/handout.pdf
+        activities:
+          - type: 直播
+            start: 2026-03-02T19:00:00+08:00
+            location: 线上
+      YAML
+      git_commit(dir)
+      @course.update!(repo_url: dir)
+      log_in_as users(:two)
+
+      assert_difference ["Resource.count", "Activity.count"] do
+        post sync_course_url(@course)
+      end
+
+      assert_redirected_to course_url(@course)
+      assert_match "已同步", flash[:notice]
+      assert @course.reload.commit_sha.present?
+      assert_equal "仓库标题", @course.title
+      assert Resource.exists?(name: "仓库讲义")
+      assert Activity.exists?(activity_type: "直播")
+    end
+  ensure
+    FileUtils.rm_rf(CourseRepo::REPO_ROOT.join(@course.course_number))
+  end
+
+  test "sync reports a missing manifest" do
+    Dir.mktmpdir do |dir|
+      git_commit(dir)
+      @course.update!(repo_url: dir)
+      log_in_as users(:two)
+
+      post sync_course_url(@course)
+
+      assert_redirected_to course_url(@course)
+      assert_match "同步失败", flash[:alert]
+      assert_nil @course.reload.commit_sha
+    end
+  ensure
+    FileUtils.rm_rf(CourseRepo::REPO_ROOT.join(@course.course_number))
+  end
+
+  test "student cannot sync a course" do
+    log_in_as users(:two)
+    post sync_course_url(courses(:two))
+
+    assert_redirected_to root_url
+    assert_equal "需要课程管理权限。", flash[:alert]
+  end
+
+  private
+
+  def git_commit(dir)
+    File.write(File.join(dir, ".keep"), "")
+    system("git", "-C", dir, "init", "--quiet", exception: true)
+    system("git", "-C", dir, "add", ".", exception: true)
+    system("git", "-C", dir, "-c", "user.email=test@example.com", "-c", "user.name=Test", "commit", "--quiet", "-m", "init", exception: true)
   end
 end
