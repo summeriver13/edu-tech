@@ -15,6 +15,7 @@ Rails.application.routes.draw do
     end
     resources :resources
     resources :activities
+    resources :memberships, only: %i[ index create destroy ]
   end
   resources :users
 end
