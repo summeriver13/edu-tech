@@ -1,0 +1,38 @@
+<div class="row justify-content-center">
+  <div class="col-md-5">
+    <h2 class="mb-4">修改密码</h2>
+
+    <% if flash.now[:alert] %>
+      <div class="alert alert-danger"><%= flash.now[:alert] %></div>
+    <% end %>
+
+    <% if current_user.errors.any? %>
+      <div class="text-danger mb-3">
+        <ul class="mb-0">
+          <% current_user.errors.each do |error| %>
+            <li><%= error.full_message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <%= form_with url: password_path, method: :patch do |form| %>
+      <div class="mb-3">
+        <%= label_tag :current_password, "当前密码", class: "form-label" %>
+        <%= password_field_tag :current_password, nil, class: "form-control" %>
+      </div>
+
+      <div class="mb-3">
+        <%= form.label :password, "新密码", class: "form-label" %>
+        <%= form.password_field :password, class: "form-control" %>
+      </div>
+
+      <div class="mb-3">
+        <%= form.label :password_confirmation, "确认新密码", class: "form-label" %>
+        <%= form.password_field :password_confirmation, class: "form-control" %>
+      </div>
+
+      <%= form.submit "更新密码", class: "btn btn-primary" %>
+    <% end %>
+  </div>
+</div>
