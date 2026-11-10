@@ -20,6 +20,14 @@ test:
   <<: *default
   database: storage/test.sqlite3
 
+# Set DATABASE_URL to a postgres:// URL to run on PostgreSQL instead of SQLite.
+# Install the adapter first: BUNDLE_WITH=postgres bundle install
 production:
-  <<: *default
-  database: storage/production.sqlite3
+  primary:
+    <<: *default
+    database: storage/production.sqlite3
+    url: <%= ENV["DATABASE_URL"] if ENV["DATABASE_URL"].present? %>
+  queue:
+    <<: *default
+    database: storage/production_queue.sqlite3
+    url: <%= ENV["QUEUE_DATABASE_URL"] if ENV["QUEUE_DATABASE_URL"].present? %>

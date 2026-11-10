@@ -34,6 +34,44 @@ jobs:
       - name: Run tests
         run: bin/rails test
 
+  test-postgres:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      BUNDLE_WITH: postgres
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/edu_tech_test
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "4.0.7"
+          bundler-cache: true
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+      - name: Enable yarn
+        run: corepack enable && corepack prepare yarn@1.22.22 --activate
+      - name: Install node modules
+        run: yarn install --frozen-lockfile
+      - name: Build assets
+        run: yarn build && yarn build:css
+      - name: Prepare database
+        run: RAILS_ENV=test bin/rails db:prepare
+      - name: Run tests
+        run: bin/rails test
+
   precompile:
     runs-on: ubuntu-latest
     env:

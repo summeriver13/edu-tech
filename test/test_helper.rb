@@ -12,6 +12,12 @@ module ActiveSupport
     fixtures :all
 
     # Add more helper methods to be used by all tests here...
+    def git_init(dir)
+      File.write(File.join(dir, ".keep"), "")
+      system("git", "-C", dir, "init", "--quiet", exception: true)
+      system("git", "-C", dir, "add", ".", exception: true)
+      system("git", "-C", dir, "-c", "user.email=test@example.com", "-c", "user.name=Test", "commit", "--quiet", "-m", "init", exception: true)
+    end
   end
 end
 

@@ -1,5 +1,6 @@
 class CoursesController < ApplicationController
   PER_PAGE = 9
+  PUBLIC_MAX_AGE = 120
 
   before_action :require_login, only: %i[ new create edit update destroy sync ]
   before_action :require_admin, only: %i[ new create destroy ]
@@ -24,6 +25,12 @@ class CoursesController < ApplicationController
     @completed_lesson_ids = logged_in? ? LessonCompletion.where(user: current_user, lesson: @lessons).pluck(:lesson_id) : []
     @lesson_progress = @course.lesson_progress_for(logged_in? ? current_user : nil)
     @certificate = logged_in? ? @course.certificates.find_by(user: current_user) : nil
+    fresh_when(
+      etag: [ @course, content_updated_at, current_user&.id, @completed_lesson_ids.sort, @lesson_progress, @certificate&.id ],
+      last_modified: content_updated_at,
+      public: !logged_in?
+    )
+    response.cache_control[:max_age] = PUBLIC_MAX_AGE unless logged_in?
   end
 
   def information
@@ -39,7 +46,22 @@ class CoursesController < ApplicationController
   end
 
   # GET /courses/1/preview
+  def content_updated_at
+    [
+      @course.updated_at,
+      @course.assessments.maximum(:updated_at),
+      @course.lessons.maximum(:updated_at),
+      @course.resources.maximum(:updated_at),
+      @course.activities.maximum(:updated_at)
+    ].compact.max
+  end
+
   def preview
+    if @course.syncing_at.present?
+      redirect_to course_path(@course), alert: "同步正在进行。"
+      return
+    end
+
     result = CourseRepo.new(@course).preview
     unless result.success?
       redirect_to course_path(@course), alert: result.message
@@ -52,13 +74,14 @@ class CoursesController < ApplicationController
 
   # POST /courses/1/sync
   def sync
-    result = CourseRepo.new(@course).sync
-
-    if result.success?
-      redirect_to course_path(@course), notice: result.message, status: :see_other
-    else
-      redirect_to course_path(@course), alert: result.message, status: :see_other
+    if @course.syncing_at.present?
+      redirect_to course_path(@course), alert: "同步正在进行。", status: :see_other
+      return
     end
+
+    @course.update!(syncing_at: Time.current, sync_error: nil)
+    CourseSyncJob.perform_later(@course)
+    redirect_to course_path(@course), notice: "同步已开始，完成后刷新页面。", status: :see_other
   end
 
   # POST /courses or /courses.json

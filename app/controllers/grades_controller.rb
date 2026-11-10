@@ -8,7 +8,14 @@ class GradesController < ApplicationController
   def index
     @assessments = @course.assessments.order(:due_at)
     members = course_manager?(@course) ? @course.members.order(:name) : [ current_user ]
-    @rows = members.map { |user| [ user, @course.grade_for(user), @course.letter_grade(user) ] }
+    @context = ScoreContext.new(@course, members)
+    @rows = members.map { |user| [ user, @course.grade_for(user, @context), @course.letter_grade(user, @context) ] }
+    @grades = members.index_with do |user|
+      @assessments.index_with { |assessment| assessment.submission_for(user, @context)&.grade }
+    end
+    @student_scores = @assessments.map do |assessment|
+      [ assessment, assessment.raw_score_for(current_user, @context), assessment.weighted_score_for(current_user, @context) ]
+    end
   end
 
   def update

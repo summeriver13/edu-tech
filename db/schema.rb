@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_09_223000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_09_225000) do
   create_table "activities", force: :cascade do |t|
     t.integer "course_id", null: false
     t.string "activity_type"
@@ -136,6 +136,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_09_223000) do
     t.date "census_at"
     t.integer "min_attendance"
     t.boolean "self_enrollment", default: false, null: false
+    t.datetime "syncing_at"
+    t.string "sync_error"
     t.index ["course_number"], name: "index_courses_on_course_number", unique: true
   end
 
@@ -199,6 +201,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_09_223000) do
     t.text "body"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.text "body_html"
     t.index ["course_id", "position"], name: "index_lessons_on_course_id_and_position"
     t.index ["course_id", "source_path"], name: "index_lessons_on_course_id_and_source_path", unique: true, where: "source_path IS NOT NULL"
     t.index ["course_id"], name: "index_lessons_on_course_id"

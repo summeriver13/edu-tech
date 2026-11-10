@@ -75,8 +75,13 @@
             尚未同步
           <% end %>
         </div>
+        <% if @course.syncing_at.present? %>
+          <span class="badge text-bg-info">同步中</span>
+        <% elsif @course.sync_error.present? %>
+          <div class="small text-danger"><%= @course.sync_error %></div>
+        <% end %>
       </div>
-      <% if course_manager?(@course) %>
+      <% if course_manager?(@course) && @course.syncing_at.nil? %>
         <%= link_to "预览变更", preview_course_path(@course), class: "btn btn-primary" %>
       <% end %>
     </div>

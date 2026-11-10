@@ -26,7 +26,7 @@
         <tr>
           <td><%= user.name %></td>
           <% @assessments.each do |assessment| %>
-            <% grade = assessment.submission_for(user)&.grade %>
+            <% grade = @grades[user][assessment] %>
             <td class="text-end"><%= grade ? number_with_precision(grade.score, precision: 1) : "—" %></td>
           <% end %>
           <td class="text-end"><strong><%= total %></strong></td>
@@ -46,13 +46,12 @@
       </tr>
     </thead>
     <tbody>
-      <% @assessments.each do |assessment| %>
-        <% score = assessment.raw_score_for(current_user) %>
+      <% @student_scores.each do |assessment, score, weighted| %>
         <tr>
           <td><%= assessment.title %></td>
           <td class="text-end"><%= number_to_percentage(assessment.weight, precision: 0) %></td>
           <td class="text-end"><%= score ? number_with_precision(score, precision: 1) : "—" %></td>
-          <td class="text-end"><%= number_with_precision(assessment.weighted_score_for(current_user), precision: 1) %></td>
+          <td class="text-end"><%= number_with_precision(weighted, precision: 1) %></td>
         </tr>
       <% end %>
     </tbody>
@@ -64,7 +63,7 @@
     </tfoot>
   </table>
 
-  <% failures = @course.hurdle_failures(current_user) %>
+  <% failures = @course.hurdle_failures(current_user, @context) %>
   <% if failures.any? %>
     <div class="alert alert-danger">门槛未达标：<%= failures.map(&:title).join("、") %>。总评记 TF。</div>
   <% end %>

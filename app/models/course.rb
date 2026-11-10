@@ -29,7 +29,7 @@ class Course < ApplicationRecord
     next all if query.blank?
 
     pattern = "%#{sanitize_sql_like(query)}%"
-    where("title LIKE :pattern OR course_number LIKE :pattern OR description LIKE :pattern", pattern: pattern)
+    where("LOWER(title) LIKE LOWER(:pattern) OR LOWER(course_number) LIKE LOWER(:pattern) OR LOWER(description) LIKE LOWER(:pattern)", pattern: pattern)
   }
 
   def zone
@@ -91,18 +91,18 @@ class Course < ApplicationRecord
     groups.joins(:group_memberships).find_by(group_memberships: { user_id: user.id })
   end
 
-  def grade_for(user)
-    assessments.sum { |assessment| assessment.weighted_score_for(user) }.round(1)
+  def grade_for(user, context = nil)
+    assessments.sum { |assessment| assessment.weighted_score_for(user, context) }.round(1)
   end
 
-  def hurdle_failures(user)
-    assessments.select { |assessment| assessment.hurdle_failed?(user) }
+  def hurdle_failures(user, context = nil)
+    assessments.select { |assessment| assessment.hurdle_failed?(user, context) }
   end
 
-  def letter_grade(user)
-    return "TF" if hurdle_failures(user).any?
+  def letter_grade(user, context = nil)
+    return "TF" if hurdle_failures(user, context).any?
 
-    total = grade_for(user)
+    total = grade_for(user, context)
     GRADE_SCALE.find { |_, minimum| total >= minimum }&.first || "F"
   end
 

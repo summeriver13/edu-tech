@@ -14,6 +14,39 @@ class LessonsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".lesson-body h1", text: "第一课"
   end
 
+  test "revalidates a public lesson with an etag" do
+    get course_lesson_url(@course, @lesson)
+    etag = response.headers["ETag"]
+    assert etag.present?
+    assert_includes response.headers["Cache-Control"], "public"
+
+    get course_lesson_url(@course, @lesson), headers: { "If-None-Match" => etag }
+
+    assert_response :not_modified
+  end
+
+  test "does not reuse an anonymous etag for a member" do
+    get course_lesson_url(@course, @lesson)
+    etag = response.headers["ETag"]
+    log_in_as users(:two)
+    get course_lesson_url(@course, @lesson)
+
+    get course_lesson_url(@course, @lesson), headers: { "If-None-Match" => etag }
+
+    assert_response :success
+    assert_select ".btn", text: "标记完成"
+    assert_not_includes response.headers["Cache-Control"], "public"
+  end
+
+  test "renders the precomputed html when present" do
+    @lesson.update!(body: "旧正文", body_html: "<p>预渲染正文</p>")
+
+    get course_lesson_url(@course, @lesson)
+
+    assert_select ".lesson-body p", text: "预渲染正文"
+    assert_select ".lesson-body p", text: "旧正文", count: 0
+  end
+
   test "shows the lesson quiz with the best score" do
     @lesson.questions.create!(course: @course, kind: "short", stem: "题干？", answer: "答案")
     @lesson.attempts.create!(course: @course, user: users(:two), score: 1, total: 1, taken_at: Time.current)

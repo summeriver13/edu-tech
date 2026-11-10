@@ -50,6 +50,26 @@ class GradesControllerTest < ActionDispatch::IntegrationTest
     assert_select "td", text: users(:two).name
   end
 
+  test "manager grade page does not query once per student" do
+    Grade.create!(submission: @submission, score: 80)
+    5.times do |i|
+      student = User.create!(name: "Student#{i}", password: "secret")
+      @course.course_memberships.create!(user: student, role: "student")
+      Submission.create!(assessment: @assessment, user: student, body: "x").create_grade!(score: 70)
+    end
+    log_in_as users(:one)
+
+    count = 0
+    subscriber = ActiveSupport::Notifications.subscribe("sql.active_record") do |*, payload|
+      count += 1 unless payload[:name].to_s.in?([ "SCHEMA", "TRANSACTION" ])
+    end
+    get course_grades_url(@course)
+    ActiveSupport::Notifications.unsubscribe(subscriber)
+
+    assert_response :success
+    assert_operator count, :<, 30
+  end
+
   test "rejects a score above 100" do
     log_in_as users(:one)
     patch course_assessment_submission_grade_url(@course, @assessment, @submission), params: { grade: { score: 120 } }

@@ -86,7 +86,8 @@ class CoursePlan
       attributes = {
         "position" => index + 1,
         "title" => item["title"].presence || lesson_title(body, path),
-        "body" => body
+        "body" => body,
+        "body_html" => MarkdownRenderer.render(body)
       }
       compare("课时", path, record, attributes)
     end

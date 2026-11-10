@@ -69,8 +69,15 @@ group :development do
   # gem "spring"
 end
 
+# Optional PostgreSQL adapter. Install with BUNDLE_WITH=postgres and set DATABASE_URL.
+group :postgres, optional: true do
+  gem "pg"
+end
+
 group :test do
   # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
   gem "capybara"
   gem "selenium-webdriver"
 end
+
+gem "solid_queue", "~> 1.7"

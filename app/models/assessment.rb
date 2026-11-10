@@ -35,8 +35,9 @@ class Assessment < ApplicationRecord
   validate :min_score_needs_hurdle
   validate :best_of_fits_sittings
 
-  def submission_for(user)
+  def submission_for(user, context = nil)
     return nil if user.nil?
+    return context.submission(self, user) if context
 
     if group_work?
       group = course.group_for(user)
@@ -46,43 +47,44 @@ class Assessment < ApplicationRecord
     end
   end
 
-  def grade_for(user)
-    submission_for(user)&.grade
+  def grade_for(user, context = nil)
+    submission_for(user, context)&.grade
   end
 
-  def raw_score_for(user)
-    grade = grade_for(user)
+  def raw_score_for(user, context = nil)
+    grade = grade_for(user, context)
     return grade.score.to_f unless grade.nil?
 
-    attempt_score_for(user)
+    attempt_score_for(user, context)
   end
 
-  def adjusted_score_for(user)
-    raw = raw_score_for(user)
+  def adjusted_score_for(user, context = nil)
+    raw = raw_score_for(user, context)
     return nil if raw.nil?
 
-    (raw * adjustment_factor_for(user)).clamp(0, 100)
+    (raw * adjustment_factor_for(user, context)).clamp(0, 100)
   end
 
-  def attempt_score_for(user)
+  def attempt_score_for(user, context = nil)
     return nil if user.nil?
 
-    percents = attempts.where(user_id: user.id).map(&:percent).sort.reverse
+    percents = context ? context.attempt_percents(self, user) : attempts.where(user_id: user.id).map(&:percent)
+    percents = percents.sort.reverse
     return nil if percents.empty?
 
     taken = best_of.present? ? percents.first(best_of) : percents
     (taken.sum.to_f / taken.size).round(1)
   end
 
-  def penalized_score_for(user)
-    score = adjusted_score_for(user)
+  def penalized_score_for(user, context = nil)
+    score = adjusted_score_for(user, context)
     return nil if score.nil?
 
-    (score - late_penalty_for(submission_for(user))).clamp(0, 100)
+    (score - late_penalty_for(submission_for(user, context))).clamp(0, 100)
   end
 
-  def weighted_score_for(user)
-    score = penalized_score_for(user)
+  def weighted_score_for(user, context = nil)
+    score = penalized_score_for(user, context)
     return 0 if score.nil?
 
     score * weight.to_f / 100
@@ -107,27 +109,28 @@ class Assessment < ApplicationRecord
     [ (word_limit * (100 - tolerance) / 100.0).round, (word_limit * (100 + tolerance) / 100.0).round ]
   end
 
-  def hurdle_failed?(user)
+  def hurdle_failed?(user, context = nil)
     return false unless hurdle?
 
     if min_score.nil?
-      submission_for(user).nil? && attempt_score_for(user).nil?
+      submission_for(user, context).nil? && attempt_score_for(user, context).nil?
     else
-      adjusted_score_for(user).nil? || adjusted_score_for(user) < min_score.to_f
+      adjusted_score_for(user, context).nil? || adjusted_score_for(user, context) < min_score.to_f
     end
   end
 
-  def outcome_for(user)
+  def outcome_for(user, context = nil)
     return nil unless pass_fail?
 
-    score = adjusted_score_for(user)
+    score = adjusted_score_for(user, context)
     return nil if score.nil?
 
     score >= PASS_MARK ? "通过" : "未通过"
   end
 
-  def adjustment_factor_for(user)
+  def adjustment_factor_for(user, context = nil)
     return 1 unless group_work?
+    return context.adjustment_factor(self, user) if context
 
     group = course.group_for(user)
     membership = group&.group_memberships&.find_by(user_id: user.id)

@@ -62,6 +62,17 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     assert_select "a", text: /#{activities(:one).activity_type}/
   end
 
+  test "revalidates a course page with an etag" do
+    get course_url(@course)
+    get course_url(@course)
+    etag = response.headers["ETag"]
+    assert etag.present?
+
+    get course_url(@course), headers: { "If-None-Match" => etag }
+
+    assert_response :not_modified
+  end
+
   test "shows the completion record link on the course page" do
     @course.lessons.first.lesson_completions.create!(user: users(:two))
     certificate = Certificate.issue_for(users(:two), @course)
@@ -181,12 +192,12 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
 
       assert_difference ["Resource.count", "Activity.count"] do
         assert_difference "Assessment.count", 2 do
-          post sync_course_url(@course)
+          sync_now(@course)
         end
       end
 
       assert_redirected_to course_url(@course)
-      assert_match "已同步", flash[:notice]
+      assert_match "同步已开始", flash[:notice]
       assert @course.reload.commit_sha.present?
       assert_equal "仓库标题", @course.title
       assert Resource.exists?(name: "仓库讲义")
@@ -213,9 +224,34 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
       assert_equal "第一课", lesson.title
       assert_equal 1, lesson.position
       assert_includes lesson.body, "正文"
+      assert_includes lesson.body_html, "正文"
       synced_question = Question.find_by!(key: "q1")
       assert_equal lesson, synced_question.lesson
       assert_equal %w[ 分析 设计 ], synced_question.choices
+    end
+  ensure
+    FileUtils.rm_rf(CourseRepo.repo_root.join(@course.course_number))
+  end
+
+  test "sync enqueues a background job" do
+    Dir.mktmpdir do |dir|
+      File.write(File.join(dir, "course.yml"), "course:\n  title: 后台标题\n")
+      git_commit(dir)
+      @course.update!(repo_url: dir)
+      log_in_as users(:two)
+
+      assert_enqueued_with(job: CourseSyncJob, args: [ @course ]) do
+        post sync_course_url(@course)
+      end
+
+      assert_redirected_to course_url(@course)
+      assert_match "同步已开始", flash[:notice]
+      assert @course.reload.syncing_at.present?
+
+      perform_enqueued_jobs
+
+      assert_nil @course.reload.syncing_at
+      assert_equal "后台标题", @course.title
     end
   ensure
     FileUtils.rm_rf(CourseRepo.repo_root.join(@course.course_number))
@@ -235,12 +271,12 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
       log_in_as users(:two)
 
       assert_no_difference ["Assessment.count"] do
-        post sync_course_url(@course)
+        sync_now(@course)
       end
 
       assert_redirected_to course_url(@course)
-      assert_match "权重合计必须为 100", flash[:alert]
-      assert_nil @course.reload.commit_sha
+      assert_match "权重合计必须为 100", @course.reload.sync_error
+      assert_nil @course.commit_sha
     end
   ensure
     FileUtils.rm_rf(CourseRepo.repo_root.join(@course.course_number))
@@ -256,11 +292,11 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
         log_in_as users(:two)
 
         @course.update!(repo_url: first)
-        post sync_course_url(@course)
+        sync_now(@course)
         assert_equal "一号", @course.reload.title
 
         @course.update!(repo_url: second)
-        post sync_course_url(@course)
+        sync_now(@course)
         assert_equal "二号", @course.reload.title
       end
     end
@@ -274,11 +310,11 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
       @course.update!(repo_url: dir)
       log_in_as users(:two)
 
-      post sync_course_url(@course)
+      sync_now(@course)
 
       assert_redirected_to course_url(@course)
-      assert_match "同步失败", flash[:alert]
-      assert_nil @course.reload.commit_sha
+      assert_match "仓库缺少 course.yml", @course.reload.sync_error
+      assert_nil @course.commit_sha
     end
   ensure
     FileUtils.rm_rf(CourseRepo.repo_root.join(@course.course_number))
@@ -297,10 +333,10 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
       log_in_as users(:two)
 
       assert_no_difference "Question.count" do
-        post sync_course_url(@course)
+        sync_now(@course)
       end
 
-      assert_match "题目缺少 key", flash[:alert]
+      assert_match "题目缺少 key", @course.reload.sync_error
     end
   ensure
     FileUtils.rm_rf(CourseRepo.repo_root.join(@course.course_number))
@@ -347,7 +383,7 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
       git_commit(dir)
       @course.update!(repo_url: dir)
       log_in_as users(:two)
-      post sync_course_url(@course)
+      sync_now(@course)
 
       get preview_course_url(@course)
 
@@ -379,10 +415,10 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
       log_in_as users(:two)
 
       assert_no_difference "Lesson.count" do
-        post sync_course_url(@course)
+        sync_now(@course)
       end
 
-      assert_match "课时路径越界", flash[:alert]
+      assert_match "课时路径越界", @course.reload.sync_error
     end
   ensure
     FileUtils.rm_rf(CourseRepo.repo_root.join(@course.course_number))
@@ -397,6 +433,10 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
   end
 
   private
+
+  def sync_now(course)
+    perform_enqueued_jobs { post sync_course_url(course) }
+  end
 
   def git_commit(dir)
     File.write(File.join(dir, ".keep"), "")

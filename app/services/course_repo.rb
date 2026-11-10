@@ -116,6 +116,7 @@ class CourseRepo
       lesson.position = index + 1
       lesson.title = item["title"].presence || lesson_title(body, path)
       lesson.body = body
+      lesson.body_html = MarkdownRenderer.render(body)
       lesson.save!
     end
   end
