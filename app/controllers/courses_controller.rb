@@ -2,8 +2,9 @@ class CoursesController < ApplicationController
   PER_PAGE = 9
 
   before_action :require_login, only: %i[ new create edit update destroy ]
-  before_action :require_admin, only: %i[ new create edit update destroy ]
-  before_action :set_course, only: %i[show edit update destroy ]
+  before_action :require_admin, only: %i[ new create destroy ]
+  before_action :set_course, only: %i[ show edit update destroy ]
+  before_action :require_course_manager, only: %i[ edit update ]
 
   # GET /courses or /courses.json
   def index
@@ -82,6 +83,6 @@ class CoursesController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def course_params
-      params.require(:course).permit(:title, :course_number, :description, :cover, :credit)
+      params.require(:course).permit(:title, :course_number, :description, :cover, :credit, :repo_url)
     end
 end

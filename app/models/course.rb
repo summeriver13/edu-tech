@@ -1,6 +1,8 @@
 class Course < ApplicationRecord
   has_many :resources, dependent: :destroy
   has_many :activities, dependent: :destroy
+  has_many :course_memberships, dependent: :destroy
+  has_many :members, through: :course_memberships, source: :user
 
   mount_uploader :cover, CoverUploader
 
@@ -14,4 +16,11 @@ class Course < ApplicationRecord
     pattern = "%#{sanitize_sql_like(query)}%"
     where("title LIKE :pattern OR course_number LIKE :pattern OR description LIKE :pattern", pattern: pattern)
   }
+
+  def manageable_by?(user)
+    return false if user.nil?
+    return true if user.admin?
+
+    course_memberships.where(user_id: user.id, role: CourseMembership::MANAGE_ROLES).exists?
+  end
 end

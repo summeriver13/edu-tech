@@ -1,7 +1,7 @@
 class ResourcesController < ApplicationController
   before_action :require_login, only: %i[ new edit create update destroy ]
-  before_action :require_admin, only: %i[ new edit create update destroy ]
   before_action :set_course
+  before_action :require_course_manager, only: %i[ new edit create update destroy ]
   before_action :set_resource, only: %i[ show edit update destroy ]
 
   def index

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_09_170000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_09_180000) do
   create_table "activities", force: :cascade do |t|
     t.integer "course_id", null: false
     t.string "activity_type"
@@ -23,6 +23,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_09_170000) do
     t.index ["course_id"], name: "index_activities_on_course_id"
   end
 
+  create_table "course_memberships", force: :cascade do |t|
+    t.integer "course_id", null: false
+    t.integer "user_id", null: false
+    t.string "role", default: "student", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["course_id", "user_id"], name: "index_course_memberships_on_course_id_and_user_id", unique: true
+    t.index ["course_id"], name: "index_course_memberships_on_course_id"
+    t.index ["user_id"], name: "index_course_memberships_on_user_id"
+  end
+
   create_table "courses", force: :cascade do |t|
     t.string "title"
     t.text "description"
@@ -31,6 +42,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_09_170000) do
     t.datetime "updated_at", null: false
     t.string "course_number"
     t.string "cover"
+    t.string "repo_url"
+    t.string "commit_sha"
+    t.datetime "synced_at"
     t.index ["course_number"], name: "index_courses_on_course_number", unique: true
   end
 
@@ -55,5 +69,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_09_170000) do
   end
 
   add_foreign_key "activities", "courses"
+  add_foreign_key "course_memberships", "courses"
+  add_foreign_key "course_memberships", "users"
   add_foreign_key "resources", "courses"
 end

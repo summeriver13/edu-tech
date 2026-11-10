@@ -1,5 +1,5 @@
 class ApplicationController < ActionController::Base
-  helper_method :current_user, :logged_in?, :admin?
+  helper_method :current_user, :logged_in?, :admin?, :course_manager?
 
   private
 
@@ -26,5 +26,15 @@ class ApplicationController < ActionController::Base
     return if admin?
 
     redirect_to root_path, alert: "需要管理员权限。"
+  end
+
+  def course_manager?(course)
+    logged_in? && course.manageable_by?(current_user)
+  end
+
+  def require_course_manager
+    return if course_manager?(@course)
+
+    redirect_to root_path, alert: "需要课程管理权限。"
   end
 end

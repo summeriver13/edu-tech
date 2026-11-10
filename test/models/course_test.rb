@@ -19,6 +19,16 @@ class CourseTest < ActiveSupport::TestCase
     assert_includes course.errors[:course_number], "has already been taken"
   end
 
+  test "is managed by admins and course teachers" do
+    assert courses(:one).manageable_by?(users(:one))
+    assert courses(:one).manageable_by?(users(:two))
+  end
+
+  test "is not managed by students or anonymous users" do
+    assert_not courses(:two).manageable_by?(users(:two))
+    assert_not courses(:one).manageable_by?(nil)
+  end
+
   test "rejects negative credit" do
     course = courses(:one)
     course.credit = -1

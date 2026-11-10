@@ -35,6 +35,12 @@
     <%= form.label :credit, class: "form-label" %>
     <%= form.text_field :credit, class: "form-control" %>
   </div>
+
+  <div class="mb-3">
+    <%= form.label :repo_url, "课程仓库地址", class: "form-label" %>
+    <%= form.text_field :repo_url, class: "form-control" %>
+    <div class="form-text">git 地址，例如 https://github.com/user/course-cs101.git。仓库根目录需有 course.yml。</div>
+  </div>
   <br/>
   <div>
     <%= form.submit %>

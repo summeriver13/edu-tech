@@ -1,0 +1,9 @@
+teacher:
+  course: one
+  user: two
+  role: teacher
+
+student:
+  course: two
+  user: two
+  role: student

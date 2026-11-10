@@ -3,6 +3,9 @@ class User < ApplicationRecord
 
   has_secure_password
 
+  has_many :course_memberships, dependent: :destroy
+  has_many :courses, through: :course_memberships
+
   validates :name, presence: true, uniqueness: true
   validates :role, inclusion: { in: ROLES }
 

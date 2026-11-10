@@ -25,6 +25,16 @@ class ResourcesControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to course_resource_url(@course, Resource.last)
   end
 
+  test "course teacher can create a resource" do
+    log_in_as users(:two)
+
+    assert_difference("Resource.count") do
+      post course_resources_url(@course), params: { resource: { name: "Teacher note", resource_type: "document", url: "https://example.com/note.pdf" } }
+    end
+
+    assert_redirected_to course_resource_url(@course, Resource.last)
+  end
+
   test "should create resource with a video" do
     assert_difference("Resource.count") do
       post course_resources_url(@course), params: { resource: { name: "Lecture video", resource_type: "video", video: fixture_file_upload("lecture.mp4", "video/mp4") } }
