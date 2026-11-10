@@ -63,6 +63,32 @@ class SubmissionsControllerTest < ActionDispatch::IntegrationTest
     assert_select "td", text: "学生的答案"
   end
 
+  test "group assessment submits once per group" do
+    @assessment.update!(group_work: true)
+    log_in_as @student
+
+    assert_difference("Submission.count") do
+      post course_assessment_submission_url(@course, @assessment), params: { submission: { body: "组答案" } }
+    end
+    assert_equal groups(:two), Submission.order(:id).last.group
+
+    assert_no_difference("Submission.count") do
+      post course_assessment_submission_url(@course, @assessment), params: { submission: { body: "再来一次" } }
+    end
+    assert_equal "已经提交过了。", flash[:alert]
+  end
+
+  test "group assessment without a group is refused" do
+    @assessment.update!(group_work: true)
+    log_in_as users(:one)
+
+    assert_no_difference("Submission.count") do
+      post course_assessment_submission_url(@course, @assessment), params: { submission: { body: "无组" } }
+    end
+
+    assert_equal "尚未分组，请联系教师。", flash[:alert]
+  end
+
   test "requires login to submit" do
     post course_assessment_submission_url(@course, @assessment), params: { submission: { body: "x" } }
     assert_redirected_to new_session_url

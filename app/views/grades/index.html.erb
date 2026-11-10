@@ -1,0 +1,64 @@
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h3 mb-0">成绩</h1>
+  <div class="d-flex gap-2">
+    <%= link_to "返回课程", course_path(@course), class: "btn btn-sm btn-outline-secondary" %>
+    <%= link_to "小组", course_groups_path(@course), class: "btn btn-sm btn-outline-secondary" %>
+    <%= link_to "贡献台账", course_contributions_path(@course), class: "btn btn-sm btn-outline-secondary" %>
+  </div>
+</div>
+
+<p class="text-body-secondary"><%= @course.title %> · 评估权重合计 <%= number_to_percentage(@course.assessment_weight_total, precision: 0) %></p>
+
+<% if course_manager?(@course) %>
+  <table class="table align-middle">
+    <thead>
+      <tr>
+        <th>学生</th>
+        <% @assessments.each do |assessment| %>
+          <th class="text-end"><%= assessment.title %><br><span class="small text-body-secondary"><%= number_to_percentage(assessment.weight, precision: 0) %></span></th>
+        <% end %>
+        <th class="text-end">总分</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @rows.each do |user, total| %>
+        <tr>
+          <td><%= user.name %></td>
+          <% @assessments.each do |assessment| %>
+            <% grade = assessment.submission_for(user)&.grade %>
+            <td class="text-end"><%= grade ? number_with_precision(grade.score, precision: 1) : "—" %></td>
+          <% end %>
+          <td class="text-end"><strong><%= total %></strong></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <table class="table align-middle">
+    <thead>
+      <tr>
+        <th>评估</th>
+        <th class="text-end">权重</th>
+        <th class="text-end">得分</th>
+        <th class="text-end">加权</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @assessments.each do |assessment| %>
+        <% grade = assessment.submission_for(current_user)&.grade %>
+        <tr>
+          <td><%= assessment.title %></td>
+          <td class="text-end"><%= number_to_percentage(assessment.weight, precision: 0) %></td>
+          <td class="text-end"><%= grade ? number_with_precision(grade.score, precision: 1) : "—" %></td>
+          <td class="text-end"><%= number_with_precision(assessment.weighted_score_for(current_user), precision: 1) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+    <tfoot>
+      <tr>
+        <th colspan="3">总分</th>
+        <th class="text-end"><%= @rows.first&.last %></th>
+      </tr>
+    </tfoot>
+  </table>
+<% end %>

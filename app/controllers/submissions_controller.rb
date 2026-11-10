@@ -4,11 +4,15 @@ class SubmissionsController < ApplicationController
   before_action :set_course
 
   def create
-    if @assessment.submissions.exists?(user: current_user)
+    if @assessment.group_work? && current_group.nil?
+      return redirect_to course_assessment_path(@course, @assessment), alert: "尚未分组，请联系教师。"
+    end
+
+    if @assessment.submission_for(current_user)
       return redirect_to course_assessment_path(@course, @assessment), alert: "已经提交过了。"
     end
 
-    @submission = @assessment.submissions.build(submission_params.merge(user: current_user))
+    @submission = @assessment.submissions.build(submission_params.merge(user: current_user, group: current_group))
     if @submission.save
       redirect_to course_assessment_path(@course, @assessment), notice: "已提交。", status: :see_other
     else
@@ -17,7 +21,7 @@ class SubmissionsController < ApplicationController
   end
 
   def update
-    @submission = @assessment.submissions.find_by!(user: current_user)
+    @submission = own_submission || raise(ActiveRecord::RecordNotFound)
     if @submission.update(submission_params)
       redirect_to course_assessment_path(@course, @assessment), notice: "提交已更新。", status: :see_other
     else
@@ -33,6 +37,14 @@ class SubmissionsController < ApplicationController
 
   def set_course
     @course = @assessment.course
+  end
+
+  def current_group
+    @assessment.group_work? ? @course.group_for(current_user) : nil
+  end
+
+  def own_submission
+    @assessment.submission_for(current_user)
   end
 
   def submission_params

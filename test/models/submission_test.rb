@@ -17,6 +17,6 @@ class SubmissionTest < ActiveSupport::TestCase
     duplicate = Submission.new(assessment: assessments(:one), user: users(:one), body: "第二次")
 
     assert_not duplicate.valid?
-    assert_includes duplicate.errors[:user_id], "has already been taken"
+    assert_includes duplicate.errors[:base], "已经提交过了。"
   end
 end

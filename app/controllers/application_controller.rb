@@ -1,5 +1,5 @@
 class ApplicationController < ActionController::Base
-  helper_method :current_user, :logged_in?, :admin?, :course_manager?
+  helper_method :current_user, :logged_in?, :admin?, :course_manager?, :course_member?
 
   private
 
@@ -30,6 +30,16 @@ class ApplicationController < ActionController::Base
 
   def course_manager?(course)
     logged_in? && course.manageable_by?(current_user)
+  end
+
+  def course_member?(course)
+    logged_in? && course.member?(current_user)
+  end
+
+  def require_course_member
+    return if course_member?(@course)
+
+    redirect_to root_path, alert: "需要课程成员身份。"
   end
 
   def require_course_manager

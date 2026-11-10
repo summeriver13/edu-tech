@@ -1,0 +1,71 @@
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h3 mb-0">贡献台账</h1>
+  <div class="d-flex gap-2">
+    <%= link_to "返回课程", course_path(@course), class: "btn btn-sm btn-outline-secondary" %>
+    <%= link_to "小组", course_groups_path(@course), class: "btn btn-sm btn-outline-secondary" %>
+    <%= link_to "成绩", course_grades_path(@course), class: "btn btn-sm btn-outline-secondary" %>
+  </div>
+</div>
+
+<p class="text-body-secondary"><%= @course.title %> · 合计 <%= @contribution_total %> 小时</p>
+
+<%= form_with(model: [@course, @contribution], class: "row g-2 mb-4") do |form| %>
+  <div class="col-auto">
+    <%= form.date_field :on_date, class: "form-control" %>
+  </div>
+  <div class="col-auto">
+    <%= form.text_field :task, placeholder: "任务", class: "form-control" %>
+  </div>
+  <div class="col-auto">
+    <%= form.number_field :hours, step: 0.5, min: 0, placeholder: "小时", class: "form-control" %>
+  </div>
+  <div class="col-auto">
+    <%= form.select :status, Contribution::STATUSES, {}, class: "form-select" %>
+  </div>
+  <div class="col-auto">
+    <%= form.text_field :evidence_url, placeholder: "证据链接", class: "form-control" %>
+  </div>
+  <div class="col-auto">
+    <%= form.submit "记录", class: "btn btn-primary" %>
+  </div>
+<% end %>
+
+<% if @percentages.any? %>
+  <h2 class="h5">占比</h2>
+  <ul class="list-inline mb-4">
+    <% @percentages.each do |user_id, percent| %>
+      <li class="list-inline-item badge text-bg-light"><%= User.find_by(id: user_id)&.name %> <%= percent %>%</li>
+    <% end %>
+  </ul>
+<% end %>
+
+<% if @contributions.any? %>
+  <table class="table align-middle">
+    <thead>
+      <tr>
+        <th>日期</th>
+        <% if course_manager?(@course) %><th>成员</th><% end %>
+        <th>任务</th>
+        <th class="text-end">小时</th>
+        <th>状态</th>
+        <th>证据</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @contributions.each do |contribution| %>
+        <tr>
+          <td><%= contribution.on_date %></td>
+          <% if course_manager?(@course) %><td><%= contribution.user.name %></td><% end %>
+          <td><%= contribution.task %></td>
+          <td class="text-end"><%= contribution.hours %></td>
+          <td><%= contribution.status %></td>
+          <td><% if contribution.evidence_url.present? %><%= link_to "链接", contribution.evidence_url, target: "_blank", rel: "noopener" %><% end %></td>
+          <td><%= button_to "删除", course_contribution_path(@course, contribution), method: :delete, class: "btn btn-sm btn-link text-danger" %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p class="text-body-secondary">还没有记录。</p>
+<% end %>

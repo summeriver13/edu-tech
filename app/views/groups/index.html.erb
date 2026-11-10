@@ -1,0 +1,86 @@
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h3 mb-0">小组</h1>
+  <div class="d-flex gap-2">
+    <%= link_to "返回课程", course_path(@course), class: "btn btn-sm btn-outline-secondary" %>
+    <%= link_to "贡献台账", course_contributions_path(@course), class: "btn btn-sm btn-outline-secondary" %>
+    <%= link_to "成绩", course_grades_path(@course), class: "btn btn-sm btn-outline-secondary" %>
+  </div>
+</div>
+
+<p class="text-body-secondary"><%= @course.title %></p>
+
+<% if course_manager?(@course) %>
+  <%= form_with(model: [@course, @group], class: "row g-2 mb-4") do |form| %>
+    <div class="col-auto">
+      <%= form.text_field :name, placeholder: "小组名称", class: "form-control" %>
+    </div>
+    <div class="col-auto">
+      <%= form.submit "新建小组", class: "btn btn-primary" %>
+    </div>
+  <% end %>
+<% end %>
+
+<% if @groups.any? %>
+  <table class="table align-middle">
+    <thead>
+      <tr>
+        <th>小组</th>
+        <th>成员</th>
+        <th>贡献占比</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @groups.each do |group| %>
+        <tr>
+          <td>
+            <%= group.name %>
+            <% if course_manager?(@course) %>
+              <%= button_to "删除", course_group_path(@course, group), method: :delete, class: "btn btn-sm btn-link text-danger", form_class: "d-inline", data: { turbo_confirm: "确认删除小组？" } %>
+            <% end %>
+          </td>
+          <td>
+            <ul class="list-unstyled mb-0">
+              <% group.group_memberships.each do |membership| %>
+                <li class="d-flex justify-content-between align-items-center">
+                  <span>
+                    <%= membership.user.name %>
+                    <span class="badge text-bg-light"><%= membership.role %></span>
+                    <% if membership.module_name.present? %><span class="badge text-bg-secondary"><%= membership.module_name %></span><% end %>
+                    <% if membership.adjustment_factor.to_f != 1.0 %><span class="small text-body-secondary">×<%= membership.adjustment_factor %></span><% end %>
+                  </span>
+                  <% if course_manager?(@course) %>
+                    <%= button_to "移除", course_group_group_membership_path(@course, group, membership), method: :delete, class: "btn btn-sm btn-link text-danger" %>
+                  <% end %>
+                </li>
+              <% end %>
+            </ul>
+
+            <% if course_manager?(@course) %>
+              <%= form_with url: course_group_group_memberships_path(@course, group), class: "row g-1 mt-2" do |form| %>
+                <div class="col-auto">
+                  <%= text_field_tag :user_name, nil, placeholder: "用户名", class: "form-control form-control-sm" %>
+                </div>
+                <div class="col-auto">
+                  <%= select_tag :role, options_for_select(GroupMembership::ROLES), class: "form-select form-select-sm" %>
+                </div>
+                <div class="col-auto">
+                  <%= text_field_tag :module_name, nil, placeholder: "模块", class: "form-control form-control-sm" %>
+                </div>
+                <div class="col-auto">
+                  <%= submit_tag "加入", class: "btn btn-sm btn-outline-primary" %>
+                </div>
+              <% end %>
+            <% end %>
+          </td>
+          <td class="small">
+            <% (@percentages[group.id] || {}).each do |user_id, percent| %>
+              <div><%= @names[user_id] %> <%= percent %>%</div>
+            <% end %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p class="text-body-secondary">还没有小组。</p>
+<% end %>

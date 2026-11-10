@@ -10,7 +10,7 @@ class AssessmentsController < ApplicationController
 
   def show
     @submission = own_submission
-    @submissions = @assessment.submissions.includes(:user).order(:created_at) if course_manager?(@course)
+    @submissions = @assessment.submissions.includes(:user, :group, :grade).order(:created_at) if course_manager?(@course)
   end
 
   def new
@@ -20,7 +20,7 @@ class AssessmentsController < ApplicationController
   def create
     @assessment = @course.assessments.build(assessment_params)
     if @assessment.save
-      redirect_to course_assessment_path(@course, @assessment), notice: "作业已创建。"
+      redirect_to course_assessment_path(@course, @assessment), notice: "评估已创建。"
     else
       render :new, status: :unprocessable_entity
     end
@@ -31,7 +31,7 @@ class AssessmentsController < ApplicationController
 
   def update
     if @assessment.update(assessment_params)
-      redirect_to course_assessment_path(@course, @assessment), notice: "作业已更新。"
+      redirect_to course_assessment_path(@course, @assessment), notice: "评估已更新。"
     else
       render :edit, status: :unprocessable_entity
     end
@@ -39,7 +39,7 @@ class AssessmentsController < ApplicationController
 
   def destroy
     @assessment.destroy!
-    redirect_to course_assessments_path(@course), notice: "作业已删除。", status: :see_other
+    redirect_to course_assessments_path(@course), notice: "评估已删除。", status: :see_other
   end
 
   private
@@ -55,7 +55,8 @@ class AssessmentsController < ApplicationController
   def own_submission
     return nil unless logged_in?
 
-    @assessment.submissions.find_by(user: current_user) || @assessment.submissions.build(user: current_user)
+    @assessment.submission_for(current_user) ||
+      @assessment.submissions.build(user: current_user, group: @assessment.group_work? ? @course.group_for(current_user) : nil)
   end
 
   def assessment_params

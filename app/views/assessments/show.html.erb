@@ -30,12 +30,16 @@
           <th>内容</th>
           <th>附件</th>
           <th>时间</th>
+          <th>成绩</th>
         </tr>
       </thead>
       <tbody>
         <% @submissions.each do |submission| %>
           <tr>
-            <td><%= submission.user.name %></td>
+            <td>
+              <%= submission.user.name %>
+              <% if submission.group %><span class="small text-body-secondary"><%= submission.group.name %></span><% end %>
+            </td>
             <td><%= truncate(submission.body.to_s, length: 80) %></td>
             <td>
               <% if submission.file.present? %>
@@ -43,6 +47,12 @@
               <% end %>
             </td>
             <td class="small text-body-secondary"><%= submission.created_at.strftime("%Y-%m-%d %H:%M") %></td>
+            <td>
+              <%= form_with url: course_assessment_submission_grade_path(@course, @assessment, submission), method: :patch, scope: :grade, class: "d-flex gap-1" do |form| %>
+                <%= form.number_field :score, value: submission.grade&.score, min: 0, max: 100, step: 1, class: "form-control form-control-sm", style: "width: 5rem" %>
+                <%= form.submit "保存", class: "btn btn-sm btn-outline-primary" %>
+              <% end %>
+            </td>
           </tr>
         <% end %>
       </tbody>

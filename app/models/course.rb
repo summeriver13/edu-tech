@@ -4,6 +4,8 @@ class Course < ApplicationRecord
   has_many :assessments, dependent: :destroy
   has_many :course_memberships, dependent: :destroy
   has_many :members, through: :course_memberships, source: :user
+  has_many :groups, dependent: :destroy
+  has_many :contributions, dependent: :destroy
 
   mount_uploader :cover, CoverUploader
 
@@ -20,6 +22,23 @@ class Course < ApplicationRecord
 
   def assessment_weight_total
     assessments.sum(:weight)
+  end
+
+  def member?(user)
+    return false if user.nil?
+    return true if user.admin?
+
+    course_memberships.exists?(user_id: user.id)
+  end
+
+  def group_for(user)
+    return nil if user.nil?
+
+    groups.joins(:group_memberships).find_by(group_memberships: { user_id: user.id })
+  end
+
+  def grade_for(user)
+    assessments.sum { |assessment| assessment.weighted_score_for(user) }.round(1)
   end
 
   def manageable_by?(user)

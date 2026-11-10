@@ -108,3 +108,14 @@
     <p class="text-body-secondary">暂无评估项。</p>
   <% end %>
 </div>
+
+<% if course_member?(@course) %>
+  <div class="mt-5">
+    <h2 class="h4 mb-3">协作</h2>
+    <div class="d-flex gap-2">
+      <%= link_to "小组", course_groups_path(@course), class: "btn btn-outline-secondary" %>
+      <%= link_to "贡献台账", course_contributions_path(@course), class: "btn btn-outline-secondary" %>
+      <%= link_to "成绩", course_grades_path(@course), class: "btn btn-outline-secondary" %>
+    </div>
+  </div>
+<% end %>

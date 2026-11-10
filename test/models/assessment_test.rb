@@ -28,6 +28,23 @@ class AssessmentTest < ActiveSupport::TestCase
     assert_equal 100, courses(:one).assessment_weight_total
   end
 
+  test "scores an individual submission by weight" do
+    submission = Submission.create!(assessment: assessments(:two), user: users(:two), body: "答案")
+    Grade.create!(submission: submission, score: 80)
+
+    assert_in_delta 48.0, assessments(:two).weighted_score_for(users(:two))
+  end
+
+  test "applies the group adjustment factor" do
+    assessment = assessments(:two)
+    assessment.update!(group_work: true)
+    submission = Submission.create!(assessment: assessment, user: users(:two), group: groups(:two), body: "小组答案")
+    Grade.create!(submission: submission, score: 80)
+    group_memberships(:two).update!(adjustment_factor: 0.5)
+
+    assert_in_delta 24.0, assessment.weighted_score_for(users(:two))
+  end
+
   test "is removed with its course" do
     course = courses(:one)
 
