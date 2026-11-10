@@ -23,9 +23,33 @@
   <% end %>
   <% if @assessment.due_at %> · 截止 <%= [ week_label(@course, @assessment.due_at), @course.local_time(@assessment.due_at).strftime("%Y-%m-%d %H:%M") ].compact.join(" ") %><% end %>
   <% if @assessment.scope.present? %> · 范围 <%= @assessment.scope %><% end %>
+  <% if @assessment.word_range %> · 字数 <%= @assessment.word_range.join("–") %><% end %>
+  <% if @assessment.group_min || @assessment.group_max %> · 小组 <%= [ @assessment.group_min, @assessment.group_max ].compact.join("–") %> 人<% end %>
 </p>
 
 <p class="lead"><%= simple_format(@assessment.description) %></p>
+
+<% if @assessment.deliverables.any? %>
+  <div class="mb-4">
+    <div class="fw-semibold">交付物</div>
+    <ul class="mb-0">
+      <% @assessment.deliverables.each do |deliverable| %>
+        <li>
+          <%= deliverable.name %>
+          <% if deliverable.due_at %>
+            · 截止 <%= [ week_label(@course, deliverable.due_at), @course.local_time(deliverable.due_at).strftime("%Y-%m-%d %H:%M") ].compact.join(" ") %>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>
+
+<% if @course.late_penalty_percent.to_f.positive? %>
+  <p class="small text-body-secondary">
+    迟交每天扣 <%= number_with_precision(@course.late_penalty_percent, precision: 0) %> 分<% if @course.late_penalty_max_days %>，超过 <%= @course.late_penalty_max_days %> 天不给分<% end %>。
+  </p>
+<% end %>
 
 <% if @assessment.kind == "quiz" %>
   <div class="card mb-4">
@@ -49,6 +73,7 @@
       <thead>
         <tr>
           <th>学生</th>
+          <th>交付物</th>
           <th>内容</th>
           <th>附件</th>
           <th>时间</th>
@@ -62,6 +87,7 @@
               <%= submission.user.name %>
               <% if submission.group %><span class="small text-body-secondary"><%= submission.group.name %></span><% end %>
             </td>
+            <td class="small text-body-secondary"><%= submission.deliverable&.name || "—" %></td>
             <td><%= truncate(submission.body.to_s, length: 80) %></td>
             <td>
               <% if submission.file.present? %>
@@ -82,39 +108,62 @@
   <% else %>
     <p class="text-body-secondary">还没有人提交。</p>
   <% end %>
-<% elsif @submission %>
-  <h2 class="h5 mt-4"><%= @submission.persisted? ? "我的提交" : "提交作业" %></h2>
+<% elsif logged_in? %>
+  <h2 class="h5 mt-4">提交</h2>
 
-  <% if @submission.errors.any? %>
-    <div class="text-danger mb-3">
-      <ul class="mb-0">
-        <% @submission.errors.each do |error| %>
-          <li><%= error.full_message %></li>
+  <% @slot_rows.each do |deliverable, submission| %>
+    <div class="card mb-3">
+      <div class="card-body">
+        <div class="fw-semibold mb-2">
+          <%= deliverable ? deliverable.name : "提交内容" %>
+          <% if deliverable&.due_at %>
+            · 截止 <%= [ week_label(@course, deliverable.due_at), @course.local_time(deliverable.due_at).strftime("%Y-%m-%d %H:%M") ].compact.join(" ") %>
+          <% end %>
+          <% if submission.persisted? %><span class="badge text-bg-success">已提交</span><% end %>
+        </div>
+
+        <% if submission.errors.any? %>
+          <div class="text-danger small mb-2">
+            <ul class="mb-0">
+              <% submission.errors.each do |error| %>
+                <li><%= error.full_message %></li>
+              <% end %>
+            </ul>
+          </div>
         <% end %>
-      </ul>
+
+        <% if submission.persisted? %>
+          <div class="border rounded p-2 my-2 small"><%= simple_format(submission.body) if submission.body.present? %>
+            <% if submission.file.present? %><%= link_to "下载附件", submission.file.url, target: "_blank", rel: "noopener" %><% end %>
+          </div>
+          <div class="small text-body-secondary mb-2">
+            提交时间 <%= submission.created_at.strftime("%Y-%m-%d %H:%M") %>
+            <% if submission.late_days.positive? %> · 迟交 <%= submission.late_days %> 天<% end %>
+          </div>
+        <% end %>
+
+        <%= form_with(model: submission, url: submission.persisted? ? course_assessment_submission_path(@course, @assessment, submission) : course_assessment_submissions_path(@course, @assessment), method: submission.persisted? ? :patch : :post) do |form| %>
+          <%= form.hidden_field :deliverable_id, value: deliverable&.id %>
+          <div class="mb-2">
+            <%= form.text_area :body, rows: 4, class: "form-control", placeholder: "内容" %>
+            <% if submission.body.present? %>
+              <div class="form-text">当前 <%= submission.word_count %> 词。</div>
+            <% end %>
+          </div>
+
+          <div class="mb-2">
+            <%= form.file_field :file, class: "form-control" %>
+            <div class="form-text">支持 pdf / zip / txt / md / docx / pptx / png / jpg，单个文件不超过 50 MB。</div>
+          </div>
+
+          <%= form.submit(submission.persisted? ? "更新提交" : "提交", class: "btn btn-sm btn-primary") %>
+        <% end %>
+
+        <% if submission.persisted? && @assessment.pass_fail? && @assessment.outcome_for(current_user) %>
+          <p class="small mt-2 mb-0">结果：<strong><%= @assessment.outcome_for(current_user) %></strong></p>
+        <% end %>
+      </div>
     </div>
-  <% end %>
-
-  <%= form_with(model: @submission, url: course_assessment_submission_path(@course, @assessment), method: @submission.persisted? ? :patch : :post) do |form| %>
-    <div class="mb-3">
-      <%= form.label :body, "内容", class: "form-label" %>
-      <%= form.text_area :body, rows: 5, class: "form-control" %>
-    </div>
-
-    <div class="mb-3">
-      <%= form.label :file, "附件", class: "form-label" %>
-      <%= form.file_field :file, class: "form-control" %>
-      <div class="form-text">支持 pdf / zip / txt / md / docx / pptx / png / jpg，单个文件不超过 50 MB。</div>
-    </div>
-
-    <%= form.submit(@submission.persisted? ? "更新提交" : "提交", class: "btn btn-primary") %>
-  <% end %>
-
-  <% if @submission.persisted? %>
-    <p class="small text-body-secondary mt-2">提交时间 <%= @submission.created_at.strftime("%Y-%m-%d %H:%M") %></p>
-    <% if @assessment.pass_fail? && @assessment.outcome_for(current_user) %>
-      <p class="small">结果：<strong><%= @assessment.outcome_for(current_user) %></strong></p>
-    <% end %>
   <% end %>
 <% else %>
   <p class="text-body-secondary"><%= link_to "登录", new_session_path %> 后可提交作业。</p>

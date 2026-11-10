@@ -18,6 +18,8 @@ class Course < ApplicationRecord
   validates :credit, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
   validates :term_weeks, numericality: { greater_than: 0, only_integer: true }
   validates :time_zone, presence: true
+  validates :late_penalty_percent, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 100 }
+  validates :late_penalty_max_days, numericality: { greater_than: 0, only_integer: true }, allow_nil: true
   validate :time_zone_is_valid
 
   scope :search, ->(query) {

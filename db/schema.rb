@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_09_212000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_09_213000) do
   create_table "activities", force: :cascade do |t|
     t.integer "course_id", null: false
     t.string "activity_type"
@@ -54,6 +54,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_09_212000) do
     t.boolean "pass_fail", default: false, null: false
     t.integer "sittings"
     t.integer "best_of"
+    t.integer "word_limit"
+    t.integer "word_limit_tolerance", default: 10, null: false
+    t.integer "group_min"
+    t.integer "group_max"
     t.index ["course_id", "key"], name: "index_assessments_on_course_id_and_key", unique: true
     t.index ["course_id"], name: "index_assessments_on_course_id"
   end
@@ -111,7 +115,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_09_212000) do
     t.string "time_zone", default: "Asia/Shanghai", null: false
     t.date "week1_start"
     t.integer "term_weeks", default: 18, null: false
+    t.decimal "late_penalty_percent", default: "0.0", null: false
+    t.integer "late_penalty_max_days"
     t.index ["course_number"], name: "index_courses_on_course_number", unique: true
+  end
+
+  create_table "deliverables", force: :cascade do |t|
+    t.integer "assessment_id", null: false
+    t.string "name", null: false
+    t.datetime "due_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["assessment_id", "name"], name: "index_deliverables_on_assessment_id_and_name", unique: true
+    t.index ["assessment_id"], name: "index_deliverables_on_assessment_id"
   end
 
   create_table "grades", force: :cascade do |t|
@@ -180,8 +196,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_09_212000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "group_id"
-    t.index ["assessment_id", "user_id"], name: "index_submissions_on_assessment_id_and_user_id", unique: true
+    t.integer "deliverable_id"
+    t.index ["assessment_id", "deliverable_id", "user_id"], name: "idx_on_assessment_id_deliverable_id_user_id_9f7d61afad"
     t.index ["assessment_id"], name: "index_submissions_on_assessment_id"
+    t.index ["deliverable_id"], name: "index_submissions_on_deliverable_id"
     t.index ["group_id"], name: "index_submissions_on_group_id"
     t.index ["user_id"], name: "index_submissions_on_user_id"
   end
@@ -205,6 +223,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_09_212000) do
   add_foreign_key "contributions", "users"
   add_foreign_key "course_memberships", "courses"
   add_foreign_key "course_memberships", "users"
+  add_foreign_key "deliverables", "assessments"
   add_foreign_key "grades", "submissions"
   add_foreign_key "group_memberships", "groups"
   add_foreign_key "group_memberships", "users"
@@ -212,6 +231,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_09_212000) do
   add_foreign_key "questions", "courses"
   add_foreign_key "resources", "courses"
   add_foreign_key "submissions", "assessments"
+  add_foreign_key "submissions", "deliverables"
   add_foreign_key "submissions", "groups"
   add_foreign_key "submissions", "users"
 end

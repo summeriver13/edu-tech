@@ -78,6 +78,29 @@ class AssessmentTest < ActiveSupport::TestCase
     assert_equal 32.0, assessment.weighted_score_for(users(:two))
   end
 
+  test "computes the allowed word range" do
+    assessment = assessments(:two)
+    assessment.update!(word_limit: 2000, word_limit_tolerance: 10)
+
+    assert_equal [ 1800, 2200 ], assessment.word_range
+  end
+
+  test "penalises a late submission and stops at the day cap" do
+    course = courses(:two)
+    course.update!(late_penalty_percent: 5, late_penalty_max_days: 4)
+    assessment = assessments(:two)
+    submission = assessment.submissions.create!(user: users(:two), body: "迟到")
+    submission.create_grade!(score: 100)
+    submission.update_column(:updated_at, assessment.due_at + 2.days)
+
+    assert_equal 10, assessment.late_penalty_for(submission.reload)
+    assert_equal 90.0, assessment.penalized_score_for(users(:two))
+
+    submission.update_column(:updated_at, assessment.due_at + 5.days)
+    assert_equal 100, assessment.late_penalty_for(submission.reload)
+    assert_equal 0.0, assessment.penalized_score_for(users(:two))
+  end
+
   test "rejects best_of above the planned sittings" do
     assessment = assessments(:quiz)
     assessment.best_of = 14

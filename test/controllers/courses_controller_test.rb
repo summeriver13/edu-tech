@@ -113,6 +113,9 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
           week1_start: 2026-08-31
           time_zone: Australia/Sydney
           weeks: 18
+          late_penalty:
+            percent_per_day: 5
+            max_days: 4
         assessments:
           - key: quiz
             title: 仓库测验
@@ -127,7 +130,15 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
             weight: 60
             hurdle: true
             min_score: 35
+            word_limit: 2000
+            word_limit_tolerance: 10
+            group_min: 1
+            group_max: 5
             due_at: 2026-12-13T23:59:00+11:00
+            deliverables:
+              - name: proposal
+                due_at: 2026-10-13T23:59:00+11:00
+              - name: final report
       YAML
       git_commit(dir)
       @course.update!(repo_url: dir)
@@ -155,6 +166,11 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
       synced_exam = @course.assessments.find_by!(key: "exam")
       assert synced_exam.hurdle?
       assert_equal 35, synced_exam.min_score.to_i
+      assert_equal 2000, synced_exam.word_limit
+      assert_equal [ 1800, 2200 ], synced_exam.word_range
+      assert_equal [ "final report", "proposal" ], synced_exam.deliverables.pluck(:name).sort
+      assert_equal 5, @course.late_penalty_percent.to_i
+      assert_equal 4, @course.late_penalty_max_days
     end
   ensure
     FileUtils.rm_rf(CourseRepo::REPO_ROOT.join(@course.course_number))

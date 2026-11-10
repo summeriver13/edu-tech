@@ -17,8 +17,7 @@ Rails.application.routes.draw do
     resources :activities
     resources :memberships, only: %i[ index create destroy ]
     resources :assessments do
-      resource :submission, only: %i[ create update ]
-      resources :submissions, only: [] do
+      resources :submissions, only: %i[ create update ] do
         resource :grade, only: %i[ update ]
       end
     end

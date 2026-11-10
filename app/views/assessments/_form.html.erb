@@ -57,6 +57,26 @@
     </div>
   </div>
 
+  <div class="row g-3 mb-3">
+    <div class="col-md-4">
+      <%= form.label :word_limit, "字数要求（词）", class: "form-label" %>
+      <%= form.number_field :word_limit, min: 1, class: "form-control" %>
+    </div>
+    <div class="col-md-4">
+      <%= form.label :word_limit_tolerance, "允许偏差（%）", class: "form-label" %>
+      <%= form.number_field :word_limit_tolerance, min: 0, class: "form-control" %>
+    </div>
+    <div class="col-md-4"></div>
+    <div class="col-md-4">
+      <%= form.label :group_min, "小组最少人数", class: "form-label" %>
+      <%= form.number_field :group_min, min: 1, class: "form-control" %>
+    </div>
+    <div class="col-md-4">
+      <%= form.label :group_max, "小组最多人数", class: "form-label" %>
+      <%= form.number_field :group_max, min: 1, class: "form-control" %>
+    </div>
+  </div>
+
   <div class="mb-3">
     <%= form.label :scope, "考核范围", class: "form-label" %>
     <%= form.text_field :scope, class: "form-control" %>

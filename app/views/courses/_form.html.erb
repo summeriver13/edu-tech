@@ -57,6 +57,18 @@
     </div>
   </div>
 
+  <div class="row g-3 mb-3">
+    <div class="col-md-4">
+      <%= form.label :late_penalty_percent, "迟交每天扣分", class: "form-label" %>
+      <%= form.number_field :late_penalty_percent, min: 0, max: 100, step: 1, class: "form-control" %>
+    </div>
+    <div class="col-md-4">
+      <%= form.label :late_penalty_max_days, "迟交上限天数", class: "form-label" %>
+      <%= form.number_field :late_penalty_max_days, min: 1, class: "form-control" %>
+      <div class="form-text">超过该天数不给分；留空表示只按天扣。</div>
+    </div>
+  </div>
+
   <br/>
   <div>
     <%= form.submit %>

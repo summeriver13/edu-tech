@@ -101,6 +101,10 @@ class CourseRepo
         pass_fail: item["pass_fail"] || false,
         sittings: item["sittings"],
         best_of: item["best_of"],
+        word_limit: item["word_limit"],
+        word_limit_tolerance: item["word_limit_tolerance"] || 10,
+        group_min: item["group_min"],
+        group_max: item["group_max"],
         slos: Array(item["slos"]).map(&:to_s),
         scope: item["scope"],
         venue: item["venue"],
@@ -109,16 +113,31 @@ class CourseRepo
         description: item["description"]
       )
       assessment.save!
+      sync_deliverables(assessment, item["deliverables"])
+    end
+  end
+
+  def sync_deliverables(assessment, items)
+    Array(items).each do |item|
+      name = item["name"]
+      raise Error, "交付物缺少 name。" if name.blank?
+
+      deliverable = assessment.deliverables.find_or_initialize_by(name: name)
+      deliverable.due_at = item["due_at"]
+      deliverable.save!
     end
   end
 
   def sync_term(term)
     return if term.blank?
 
+    late_penalty = term["late_penalty"] || {}
     @course.assign_attributes(
       week1_start: term["week1_start"] || @course.week1_start,
       time_zone: term["time_zone"].presence || @course.time_zone,
-      term_weeks: term["weeks"] || @course.term_weeks
+      term_weeks: term["weeks"] || @course.term_weeks,
+      late_penalty_percent: late_penalty["percent_per_day"] || @course.late_penalty_percent,
+      late_penalty_max_days: late_penalty["max_days"] || @course.late_penalty_max_days
     )
     @course.save!
   end

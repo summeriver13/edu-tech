@@ -14,6 +14,7 @@ class Assessment < ApplicationRecord
   belongs_to :course
   has_many :submissions, dependent: :destroy
   has_many :attempts, dependent: :nullify
+  has_many :deliverables, -> { order(:due_at, :id) }, dependent: :destroy, inverse_of: :assessment
 
   validates :title, presence: true
   validates :kind, inclusion: { in: KINDS }
@@ -21,6 +22,10 @@ class Assessment < ApplicationRecord
   validates :min_score, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 100 }, allow_nil: true
   validates :sittings, numericality: { greater_than: 0, only_integer: true }, allow_nil: true
   validates :best_of, numericality: { greater_than: 0, only_integer: true }, allow_nil: true
+  validates :word_limit, numericality: { greater_than: 0, only_integer: true }, allow_nil: true
+  validates :word_limit_tolerance, numericality: { greater_than_or_equal_to: 0, only_integer: true }
+  validates :group_min, numericality: { greater_than: 0, only_integer: true }, allow_nil: true
+  validates :group_max, numericality: { greater_than: 0, only_integer: true }, allow_nil: true
   validate :min_score_needs_hurdle
   validate :best_of_fits_sittings
 
@@ -63,11 +68,37 @@ class Assessment < ApplicationRecord
     (taken.sum.to_f / taken.size).round(1)
   end
 
-  def weighted_score_for(user)
+  def penalized_score_for(user)
     score = adjusted_score_for(user)
+    return nil if score.nil?
+
+    (score - late_penalty_for(submission_for(user))).clamp(0, 100)
+  end
+
+  def weighted_score_for(user)
+    score = penalized_score_for(user)
     return 0 if score.nil?
 
     score * weight.to_f / 100
+  end
+
+  def late_penalty_for(submission)
+    return 0 if submission.nil?
+
+    days = submission.late_days
+    return 0 if days.zero?
+
+    max_days = course.late_penalty_max_days
+    return 100 if max_days.present? && days > max_days
+
+    (days * course.late_penalty_percent.to_f).clamp(0, 100)
+  end
+
+  def word_range
+    return nil if word_limit.nil?
+
+    tolerance = word_limit_tolerance.to_i
+    [ (word_limit * (100 - tolerance) / 100.0).round, (word_limit * (100 + tolerance) / 100.0).round ]
   end
 
   def hurdle_failed?(user)

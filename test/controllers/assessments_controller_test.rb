@@ -61,6 +61,17 @@ class AssessmentsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "需要课程管理权限。", flash[:alert]
   end
 
+  test "course teacher can change the kind, weight and hurdle" do
+    log_in_as users(:two)
+    patch course_assessment_url(@course, @assessment), params: { assessment: { kind: "exam", weight: 55, hurdle: "1", min_score: 35 } }
+
+    @assessment.reload
+    assert_equal "exam", @assessment.kind
+    assert_equal 55, @assessment.weight.to_i
+    assert @assessment.hurdle?
+    assert_equal 35, @assessment.min_score.to_i
+  end
+
   test "course teacher can update an assessment" do
     log_in_as users(:two)
     patch course_assessment_url(@course, @assessment), params: { assessment: { title: "改过的作业" } }

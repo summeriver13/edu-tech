@@ -27,6 +27,9 @@ term:
   week1_start: 2026-08-31   # 第 1 周起始日
   time_zone: Australia/Sydney
   weeks: 18
+  late_penalty:              # 可选
+    percent_per_day: 5       # 每迟交一天扣的分数
+    max_days: 4              # 超过该天数不给分
 
 activities:
   - type: 直播
@@ -71,6 +74,9 @@ assessments:
 | `assessments[].hurdle` / `min_score` | 可选。`hurdle: true` 表示门槛项：`min_score` 缺省为「只需提交」，否则低于该分即总评记 TF |
 | `assessments[].pass_fail` | 可选；及格制只记通过 / 未通过（50 分为界） |
 | `assessments[].sittings` / `best_of` | 可选；测验计划次数与计分次数，`best_of` 不能大于 `sittings` |
+| `assessments[].word_limit` / `word_limit_tolerance` | 可选；字数要求与允许偏差，默认偏差 10% |
+| `assessments[].group_min` / `group_max` | 可选；小组人数区间，提交时校验 |
+| `assessments[].deliverables[]` | 可选；`name` 必需且评估内唯一，`due_at` 可选，按名称 upsert |
 
 ## 同步规则
 

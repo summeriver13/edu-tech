@@ -1,4 +1,6 @@
 class AssessmentsController < ApplicationController
+  include SubmissionSlots
+
   before_action :require_login, only: %i[ new create edit update destroy ]
   before_action :set_course
   before_action :require_course_manager, only: %i[ new create edit update destroy ]
@@ -9,8 +11,7 @@ class AssessmentsController < ApplicationController
   end
 
   def show
-    @submission = own_submission
-    @submissions = @assessment.submissions.includes(:user, :group, :grade).order(:created_at) if course_manager?(@course)
+    prepare_submission_slots
   end
 
   def new
@@ -52,14 +53,12 @@ class AssessmentsController < ApplicationController
     @assessment = @course.assessments.find(params[:id])
   end
 
-  def own_submission
-    return nil unless logged_in?
-
-    @assessment.submission_for(current_user) ||
-      @assessment.submissions.build(user: current_user, group: @assessment.group_work? ? @course.group_for(current_user) : nil)
-  end
-
   def assessment_params
-    params.require(:assessment).permit(:title, :description, :due_at)
+    params.require(:assessment).permit(
+      :title, :description, :due_at, :scope, :venue, :opens_at,
+      :kind, :weight, :group_work, :group_min, :group_max,
+      :hurdle, :min_score, :pass_fail, :sittings, :best_of,
+      :word_limit, :word_limit_tolerance, slos: []
+    )
   end
 end

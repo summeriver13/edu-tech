@@ -11,7 +11,7 @@ class SubmissionsControllerTest < ActionDispatch::IntegrationTest
     log_in_as @student
 
     assert_difference("Submission.count") do
-      post course_assessment_submission_url(@course, @assessment), params: { submission: { body: "我的答案" } }
+      post course_assessment_submissions_url(@course, @assessment), params: { submission: { body: "我的答案" } }
     end
 
     assert_redirected_to course_assessment_url(@course, @assessment)
@@ -24,7 +24,7 @@ class SubmissionsControllerTest < ActionDispatch::IntegrationTest
     Submission.create!(assessment: @assessment, user: @student, body: "第一次")
 
     assert_no_difference("Submission.count") do
-      post course_assessment_submission_url(@course, @assessment), params: { submission: { body: "第二次" } }
+      post course_assessment_submissions_url(@course, @assessment), params: { submission: { body: "第二次" } }
     end
 
     assert_redirected_to course_assessment_url(@course, @assessment)
@@ -35,7 +35,7 @@ class SubmissionsControllerTest < ActionDispatch::IntegrationTest
     log_in_as @student
     submission = Submission.create!(assessment: @assessment, user: @student, body: "草稿")
 
-    patch course_assessment_submission_url(@course, @assessment), params: { submission: { body: "终稿" } }
+    patch course_assessment_submission_url(@course, @assessment, submission), params: { submission: { body: "终稿" } }
 
     assert_redirected_to course_assessment_url(@course, @assessment)
     assert_equal "终稿", submission.reload.body
@@ -45,7 +45,7 @@ class SubmissionsControllerTest < ActionDispatch::IntegrationTest
     log_in_as @student
 
     assert_no_difference("Submission.count") do
-      post course_assessment_submission_url(@course, @assessment), params: { submission: { body: "" } }
+      post course_assessment_submissions_url(@course, @assessment), params: { submission: { body: "" } }
     end
 
     assert_response :unprocessable_entity
@@ -68,12 +68,12 @@ class SubmissionsControllerTest < ActionDispatch::IntegrationTest
     log_in_as @student
 
     assert_difference("Submission.count") do
-      post course_assessment_submission_url(@course, @assessment), params: { submission: { body: "组答案" } }
+      post course_assessment_submissions_url(@course, @assessment), params: { submission: { body: "组答案" } }
     end
     assert_equal groups(:two), Submission.order(:id).last.group
 
     assert_no_difference("Submission.count") do
-      post course_assessment_submission_url(@course, @assessment), params: { submission: { body: "再来一次" } }
+      post course_assessment_submissions_url(@course, @assessment), params: { submission: { body: "再来一次" } }
     end
     assert_equal "已经提交过了。", flash[:alert]
   end
@@ -83,14 +83,44 @@ class SubmissionsControllerTest < ActionDispatch::IntegrationTest
     log_in_as users(:one)
 
     assert_no_difference("Submission.count") do
-      post course_assessment_submission_url(@course, @assessment), params: { submission: { body: "无组" } }
+      post course_assessment_submissions_url(@course, @assessment), params: { submission: { body: "无组" } }
     end
 
     assert_equal "尚未分组，请联系教师。", flash[:alert]
   end
 
+  test "each deliverable takes its own submission" do
+    first = @assessment.deliverables.create!(name: "提案", due_at: Date.new(2026, 12, 1))
+    second = @assessment.deliverables.create!(name: "报告", due_at: Date.new(2026, 12, 10))
+    log_in_as @student
+
+    assert_difference("Submission.count") do
+      post course_assessment_submissions_url(@course, @assessment), params: { submission: { body: "提案正文", deliverable_id: first.id } }
+    end
+    assert_difference("Submission.count") do
+      post course_assessment_submissions_url(@course, @assessment), params: { submission: { body: "报告正文", deliverable_id: second.id } }
+    end
+
+    assert_no_difference("Submission.count") do
+      post course_assessment_submissions_url(@course, @assessment), params: { submission: { body: "重复", deliverable_id: first.id } }
+    end
+    assert_equal "已经提交过了。", flash[:alert]
+  end
+
+  test "group assessment checks the group size" do
+    @assessment.update!(group_work: true, group_min: 2, group_max: 5)
+    log_in_as @student
+
+    assert_no_difference("Submission.count") do
+      post course_assessment_submissions_url(@course, @assessment), params: { submission: { body: "人数不足" } }
+    end
+
+    assert_response :unprocessable_entity
+    assert_select "li", text: /人数必须在 2–5 人之间/
+  end
+
   test "requires login to submit" do
-    post course_assessment_submission_url(@course, @assessment), params: { submission: { body: "x" } }
+    post course_assessment_submissions_url(@course, @assessment), params: { submission: { body: "x" } }
     assert_redirected_to new_session_url
   end
 end
