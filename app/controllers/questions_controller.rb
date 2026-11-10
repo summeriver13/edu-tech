@@ -4,7 +4,7 @@ class QuestionsController < ApplicationController
   before_action :require_course_manager
 
   def index
-    @questions = @course.questions.includes(:lesson).order(:topic, :id)
+    @questions = paginate(@course.questions.includes(:lesson).order(:topic, :id))
   end
 
   def new

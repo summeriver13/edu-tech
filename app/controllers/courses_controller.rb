@@ -10,11 +10,7 @@ class CoursesController < ApplicationController
   # GET /courses or /courses.json
   def index
     @query = params[:q].to_s.strip
-    scope = Course.search(@query).order(created_at: :desc)
-    @total = scope.count
-    @page = page_param
-    @total_pages = (@total / PER_PAGE.to_f).ceil
-    @courses = scope.offset((@page - 1) * PER_PAGE).limit(PER_PAGE)
+    @courses = paginate(Course.search(@query).order(created_at: :desc), per: PER_PAGE)
   end
 
   def show
@@ -126,10 +122,6 @@ class CoursesController < ApplicationController
     # Use callbacks to share common setup or constraints between actions.
     def set_course
       @course = Course.find(params[:id])
-    end
-
-    def page_param
-      [params[:page].to_i, 1].max
     end
 
     # Only allow a list of trusted parameters through.

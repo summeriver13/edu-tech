@@ -4,7 +4,7 @@ class MembershipsController < ApplicationController
   before_action :require_course_manager
 
   def index
-    @memberships = @course.course_memberships.includes(:user).order(:role)
+    load_memberships
     @membership = @course.course_memberships.build
   end
 
@@ -16,7 +16,7 @@ class MembershipsController < ApplicationController
     if @membership.save
       redirect_to course_memberships_path(@course), notice: "已加入 #{user.name}。", status: :see_other
     else
-      @memberships = @course.course_memberships.includes(:user).order(:role)
+      load_memberships
       render :index, status: :unprocessable_entity
     end
   end
@@ -28,6 +28,10 @@ class MembershipsController < ApplicationController
   end
 
   private
+
+  def load_memberships
+    @memberships = paginate(@course.course_memberships.includes(:user).order(:role))
+  end
 
   def set_course
     @course = Course.find(params[:course_id])

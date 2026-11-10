@@ -1,4 +1,5 @@
 class ApplicationController < ActionController::Base
+  include Pagination
   helper_method :current_user, :logged_in?, :admin?, :course_manager?, :course_member?
 
   private

@@ -4,7 +4,7 @@ class ContributionsController < ApplicationController
   before_action :require_course_member
 
   def index
-    @contributions = scope.includes(:user).order(on_date: :desc)
+    @contributions = paginate(scope.includes(:user).order(on_date: :desc))
     @contribution = @course.contributions.build(on_date: Date.current, status: "done")
     @percentages = contribution_percentages
     @contribution_total = @course.contributions.sum(:hours)

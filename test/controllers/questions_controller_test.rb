@@ -38,6 +38,19 @@ class QuestionsControllerTest < ActionDispatch::IntegrationTest
     assert_equal %w[ A B ], Question.order(:id).last.choices
   end
 
+  test "paginates the question bank" do
+    55.times { |i| @course.questions.create!(kind: "short", stem: "Q#{i}", answer: "A") }
+    log_in_as users(:one)
+
+    get course_questions_url(@course)
+    assert_select "tbody tr", count: 50
+    assert_select "a", text: "下一页"
+
+    get course_questions_url(@course, page: 2)
+    assert_response :success
+    assert_select "tbody tr", count: 7
+  end
+
   test "student cannot add a question" do
     log_in_as users(:two)
 

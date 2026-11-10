@@ -6,7 +6,7 @@
   </div>
 </div>
 
-<p class="text-body-secondary"><%= @course.title %> · 共 <%= @questions.size %> 题</p>
+<p class="text-body-secondary"><%= @course.title %> · 共 <%= @total %> 题</p>
 
 <% if @questions.any? %>
   <table class="table align-middle">
@@ -31,6 +31,7 @@
       <% end %>
     </tbody>
   </table>
+  <%= render "shared/pagination" %>
 <% else %>
   <p class="text-body-secondary">还没有题目。</p>
 <% end %>
