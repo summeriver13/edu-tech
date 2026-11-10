@@ -20,6 +20,9 @@ class CoursesController < ApplicationController
     @resources = @course.resources.order(:name)
     @activities = @course.activities.order(start_time: :desc)
     @assessments = @course.assessments.order(:due_at)
+    @lessons = @course.lessons
+    @completed_lesson_ids = logged_in? ? LessonCompletion.where(user: current_user, lesson: @lessons).pluck(:lesson_id) : []
+    @lesson_progress = @course.lesson_progress_for(logged_in? ? current_user : nil)
   end
 
   def information
@@ -95,6 +98,6 @@ class CoursesController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def course_params
-      params.require(:course).permit(:title, :course_number, :description, :cover, :credit, :repo_url, :time_zone, :week1_start, :term_weeks, :late_penalty_percent, :late_penalty_max_days, :census_at, :min_attendance)
+      params.require(:course).permit(:title, :course_number, :description, :cover, :credit, :repo_url, :time_zone, :week1_start, :term_weeks, :late_penalty_percent, :late_penalty_max_days, :census_at, :min_attendance, :self_enrollment)
     end
 end

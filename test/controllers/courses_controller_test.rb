@@ -109,9 +109,13 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
 
   test "sync imports the course repo manifest" do
     Dir.mktmpdir do |dir|
+      FileUtils.mkdir_p(File.join(dir, "docs"))
+      File.write(File.join(dir, "docs", "01.md"), "# 第一课\n\n正文。\n")
       File.write(File.join(dir, "course.yml"), <<~YAML)
         course:
           title: 仓库标题
+        lessons:
+          - path: docs/01.md
         resources:
           - name: 仓库讲义
             type: document
@@ -188,6 +192,10 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
       assert_equal Date.new(2026, 10, 5), @course.census_at
       assert_equal 80, @course.min_attendance
       assert_equal "not_permitted", synced_exam.ai_policy
+      lesson = @course.lessons.first
+      assert_equal "第一课", lesson.title
+      assert_equal 1, lesson.position
+      assert_includes lesson.body, "正文"
     end
   ensure
     FileUtils.rm_rf(CourseRepo.repo_root.join(@course.course_number))
@@ -251,6 +259,27 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
       assert_redirected_to course_url(@course)
       assert_match "同步失败", flash[:alert]
       assert_nil @course.reload.commit_sha
+    end
+  ensure
+    FileUtils.rm_rf(CourseRepo.repo_root.join(@course.course_number))
+  end
+
+  test "sync rejects a lesson outside the repository" do
+    Dir.mktmpdir do |dir|
+      File.write(File.join(dir, "course.yml"), <<~YAML)
+        lessons:
+          - path: ../outside.md
+      YAML
+      File.write(File.join(dir, "..", "outside.md"), "# 越界\n")
+      git_commit(dir)
+      @course.update!(repo_url: dir)
+      log_in_as users(:two)
+
+      assert_no_difference "Lesson.count" do
+        post sync_course_url(@course)
+      end
+
+      assert_match "课时路径越界", flash[:alert]
     end
   ensure
     FileUtils.rm_rf(CourseRepo.repo_root.join(@course.course_number))

@@ -80,6 +80,17 @@ assessments:
 | `assessments[].group_min` / `group_max` | 可选；小组人数区间，提交时校验 |
 | `assessments[].deliverables[]` | 可选；`name` 必需且评估内唯一，`due_at` 可选，按名称 upsert |
 | `assessments[].ai_policy` | 可选；`not_permitted` 或 `allowed_with_declaration`，留空表示未规定 |
+| `lessons[]` | 可选；`path` 必需且相对仓库根目录，`title` 可选，按路径 upsert |
+
+## 课时
+
+```yaml
+lessons:
+  - path: docs/01-setup.md     # 必需，相对仓库根目录
+    title: 环境准备            # 可选，默认取首个一级标题或文件名
+```
+
+同步按 `path` 定位课时，写入标题、正文与顺序（数组下标 + 1）。正文按 Markdown 渲染，脚本与事件属性在渲染时移除。路径越出仓库时报「课时路径越界」，文件缺失时报「课时文件不存在」。
 
 ## 同步规则
 

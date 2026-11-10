@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_09_214000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_09_220000) do
   create_table "activities", force: :cascade do |t|
     t.integer "course_id", null: false
     t.string "activity_type"
@@ -120,6 +120,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_09_214000) do
     t.integer "late_penalty_max_days"
     t.date "census_at"
     t.integer "min_attendance"
+    t.boolean "self_enrollment", default: false, null: false
     t.index ["course_number"], name: "index_courses_on_course_number", unique: true
   end
 
@@ -162,6 +163,30 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_09_214000) do
     t.datetime "updated_at", null: false
     t.index ["course_id", "name"], name: "index_groups_on_course_id_and_name", unique: true
     t.index ["course_id"], name: "index_groups_on_course_id"
+  end
+
+  create_table "lesson_completions", force: :cascade do |t|
+    t.integer "lesson_id", null: false
+    t.integer "user_id", null: false
+    t.datetime "completed_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["lesson_id", "user_id"], name: "index_lesson_completions_on_lesson_id_and_user_id", unique: true
+    t.index ["lesson_id"], name: "index_lesson_completions_on_lesson_id"
+    t.index ["user_id"], name: "index_lesson_completions_on_user_id"
+  end
+
+  create_table "lessons", force: :cascade do |t|
+    t.integer "course_id", null: false
+    t.integer "position", default: 0, null: false
+    t.string "title", null: false
+    t.string "source_path"
+    t.text "body"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["course_id", "position"], name: "index_lessons_on_course_id_and_position"
+    t.index ["course_id", "source_path"], name: "index_lessons_on_course_id_and_source_path", unique: true, where: "source_path IS NOT NULL"
+    t.index ["course_id"], name: "index_lessons_on_course_id"
   end
 
   create_table "questions", force: :cascade do |t|
@@ -231,6 +256,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_09_214000) do
   add_foreign_key "group_memberships", "groups"
   add_foreign_key "group_memberships", "users"
   add_foreign_key "groups", "courses"
+  add_foreign_key "lesson_completions", "lessons"
+  add_foreign_key "lesson_completions", "users"
+  add_foreign_key "lessons", "courses"
   add_foreign_key "questions", "courses"
   add_foreign_key "resources", "courses"
   add_foreign_key "submissions", "assessments"

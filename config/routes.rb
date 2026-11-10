@@ -29,6 +29,10 @@ Rails.application.routes.draw do
     resources :questions, only: %i[ index new create destroy ]
     resource :practice, only: %i[ show create ], controller: "practice"
     resources :attempts, only: %i[ show ]
+    resources :lessons, only: %i[ show ] do
+      resource :completion, only: %i[ create destroy ], controller: "lesson_completions"
+    end
+    resource :enrollment, only: %i[ create ], controller: "enrollments"
   end
   get "courses/:course_id/practice/mistakes", to: "practice#mistakes", as: :course_practice_mistakes
   resources :users

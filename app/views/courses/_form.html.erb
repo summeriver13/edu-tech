@@ -57,6 +57,12 @@
     </div>
   </div>
 
+  <div class="form-check mb-3">
+    <%= form.check_box :self_enrollment, class: "form-check-input" %>
+    <%= form.label :self_enrollment, "开放自选注册", class: "form-check-label" %>
+    <div class="form-text">学习者可在课程页自行加入，加入后可标记课时完成。</div>
+  </div>
+
   <div class="row g-3 mb-3">
     <div class="col-md-4">
       <%= form.label :census_at, "Census 日期", class: "form-label" %>

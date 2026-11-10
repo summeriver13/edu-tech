@@ -12,6 +12,9 @@
   <body>
 
     <div class="container-xxl bd-gutter mt-3 my-md-4 bd-layout">
+      <% flash.each do |type, message| %>
+        <div class="alert alert-<%= type.to_s == "alert" ? "danger" : "success" %>" role="alert"><%= message %></div>
+      <% end %>
       <%= yield %>
       <%= render 'layouts/footer'%>
     </div>

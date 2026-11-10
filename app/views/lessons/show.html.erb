@@ -1,0 +1,34 @@
+<nav class="mb-3 small" aria-label="breadcrumb">
+  <%= link_to @course.title, course_path(@course) %> / 第 <%= @lesson.position %> 课
+</nav>
+
+<div class="card mb-4">
+  <div class="card-body">
+    <h1 class="h3 mb-3"><%= @lesson.title %></h1>
+    <div class="lesson-body"><%= render_markdown(@lesson.body) %></div>
+  </div>
+</div>
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+  <div class="d-flex flex-wrap gap-2">
+    <% if @previous %>
+      <%= link_to "← #{@previous.title}", course_lesson_path(@course, @previous), class: "btn btn-sm btn-outline-secondary" %>
+    <% end %>
+    <% if @next %>
+      <%= link_to "#{@next.title} →", course_lesson_path(@course, @next), class: "btn btn-sm btn-outline-secondary" %>
+    <% end %>
+  </div>
+  <div>
+    <% if course_member?(@course) %>
+      <% if @completed %>
+        <%= button_to "取消完成", course_lesson_completion_path(@course, @lesson), method: :delete, class: "btn btn-sm btn-outline-success" %>
+      <% else %>
+        <%= button_to "标记完成", course_lesson_completion_path(@course, @lesson), method: :post, class: "btn btn-sm btn-success" %>
+      <% end %>
+    <% elsif logged_in? %>
+      <span class="small text-body-secondary">加入课程后可标记完成。</span>
+    <% else %>
+      <%= link_to "登录后标记完成", new_session_path, class: "btn btn-sm btn-outline-secondary" %>
+    <% end %>
+  </div>
+</div>

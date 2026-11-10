@@ -10,6 +10,7 @@ class User < ApplicationRecord
   has_many :groups, through: :group_memberships
   has_many :contributions, dependent: :destroy
   has_many :attempts, dependent: :destroy
+  has_many :lesson_completions, dependent: :destroy
 
   validates :name, presence: true, uniqueness: true
   validates :role, inclusion: { in: ROLES }

@@ -1,0 +1,11 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  course: one
+  position: 1
+  title: 第一课
+  source_path: docs/01.md
+  body: |
+    # 第一课
+
+    正文。

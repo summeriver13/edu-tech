@@ -10,6 +10,7 @@ class Course < ApplicationRecord
   has_many :questions, dependent: :destroy
   has_many :attempts, dependent: :destroy
   has_many :contributions, dependent: :destroy
+  has_many :lessons, -> { in_order }, dependent: :destroy
 
   mount_uploader :cover, CoverUploader
 
@@ -57,6 +58,16 @@ class Course < ApplicationRecord
 
   def assessment_weight_total
     assessments.sum(:weight)
+  end
+
+  def enroll(user)
+    course_memberships.find_or_create_by(user: user) { |membership| membership.role = "student" }
+  end
+
+  def lesson_progress_for(user)
+    total = lessons.count
+    done = user ? LessonCompletion.joins(:lesson).where(lessons: { course_id: id }, user_id: user.id).count : 0
+    [ done, total ]
   end
 
   def member?(user)

@@ -74,6 +74,7 @@ class CourseRepo
       sync_term(manifest["term"] || {})
       sync_resources(manifest["resources"] || [])
       sync_activities(manifest["activities"] || [])
+      sync_lessons(manifest["lessons"] || [])
       sync_assessments(assessments)
       @course.update!(commit_sha: current_sha, synced_at: Time.current)
     end
@@ -86,6 +87,35 @@ class CourseRepo
     return if (total - WEIGHT_TOTAL).abs < 0.001
 
     raise Error, "评估项权重合计必须为 #{WEIGHT_TOTAL}，当前为 #{total}。"
+  end
+
+  def sync_lessons(items)
+    items.each_with_index do |item, index|
+      path = item["path"]
+      raise Error, "课时缺少 path。" if path.blank?
+
+      file = lesson_file(path)
+      body = File.read(file)
+      lesson = @course.lessons.find_or_initialize_by(source_path: path)
+      lesson.position = index + 1
+      lesson.title = item["title"].presence || lesson_title(body, path)
+      lesson.body = body
+      lesson.save!
+    end
+  end
+
+  def lesson_file(path)
+    root = Pathname(repo_dir).expand_path
+    file = root.join(path).expand_path
+    raise Error, "课时路径越界：#{path}。" unless file.to_s.start_with?(root.to_s + File::SEPARATOR)
+    raise Error, "课时文件不存在：#{path}。" unless file.file?
+
+    file
+  end
+
+  def lesson_title(body, path)
+    heading = body.each_line.find { |line| line.start_with?("# ") }
+    heading ? heading.delete_prefix("# ").strip : File.basename(path, ".*")
   end
 
   def sync_assessments(items)
