@@ -1,0 +1,18 @@
+single:
+  course: two
+  topic: SDLC
+  slo: SLO1
+  kind: single
+  stem: 哪个阶段先做？
+  choices: ["分析", "设计"]
+  answer: 分析
+  explanation: 分析回答 what，设计回答 how。
+
+boolean:
+  course: two
+  topic: Project
+  slo: SLO2
+  kind: boolean
+  stem: 项目是临时的。
+  choices: ["true", "false"]
+  answer: "true"

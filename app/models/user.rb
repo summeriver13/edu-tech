@@ -9,6 +9,7 @@ class User < ApplicationRecord
   has_many :group_memberships, dependent: :destroy
   has_many :groups, through: :group_memberships
   has_many :contributions, dependent: :destroy
+  has_many :attempts, dependent: :destroy
 
   validates :name, presence: true, uniqueness: true
   validates :role, inclusion: { in: ROLES }

@@ -1,0 +1,40 @@
+require "test_helper"
+
+class QuestionsControllerTest < ActionDispatch::IntegrationTest
+  setup do
+    @course = courses(:two)
+  end
+
+  test "manager creates a question" do
+    log_in_as users(:one)
+
+    assert_difference("Question.count") do
+      post course_questions_url(@course), params: {
+        question: { kind: "short", stem: "什么是 SDLC？", answer: "系统开发生命周期", choices_text: "", topic: "SDLC" }
+      }
+    end
+
+    assert_redirected_to course_questions_url(@course)
+    assert_equal "系统开发生命周期", Question.order(:id).last.answer
+  end
+
+  test "choices are split by line" do
+    log_in_as users(:one)
+    post course_questions_url(@course), params: {
+      question: { kind: "single", stem: "x", answer: "A", choices_text: "A\nB\n" }
+    }
+
+    assert_equal %w[ A B ], Question.order(:id).last.choices
+  end
+
+  test "student cannot add a question" do
+    log_in_as users(:two)
+
+    assert_no_difference("Question.count") do
+      post course_questions_url(@course), params: { question: { kind: "short", stem: "x", answer: "y" } }
+    end
+
+    assert_redirected_to root_url
+    assert_equal "需要课程管理权限。", flash[:alert]
+  end
+end

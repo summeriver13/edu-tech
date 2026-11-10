@@ -5,6 +5,8 @@ class Course < ApplicationRecord
   has_many :course_memberships, dependent: :destroy
   has_many :members, through: :course_memberships, source: :user
   has_many :groups, dependent: :destroy
+  has_many :questions, dependent: :destroy
+  has_many :attempts, dependent: :destroy
   has_many :contributions, dependent: :destroy
 
   mount_uploader :cover, CoverUploader

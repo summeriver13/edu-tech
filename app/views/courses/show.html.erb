@@ -116,6 +116,11 @@
       <%= link_to "小组", course_groups_path(@course), class: "btn btn-outline-secondary" %>
       <%= link_to "贡献台账", course_contributions_path(@course), class: "btn btn-outline-secondary" %>
       <%= link_to "成绩", course_grades_path(@course), class: "btn btn-outline-secondary" %>
+      <%= link_to "练习", course_practice_path(@course), class: "btn btn-outline-secondary" %>
+      <%= link_to "错题本", course_practice_mistakes_path(@course), class: "btn btn-outline-secondary" %>
+      <% if course_manager?(@course) %>
+        <%= link_to "题库", course_questions_path(@course), class: "btn btn-outline-secondary" %>
+      <% end %>
     </div>
   </div>
 <% end %>

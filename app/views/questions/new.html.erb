@@ -1,0 +1,53 @@
+<h1 class="h3 mb-3">新建题目</h1>
+
+<%= form_with(model: [@course, @question]) do |form| %>
+  <% if @question.errors.any? %>
+    <div class="text-danger mb-3">
+      <ul class="mb-0">
+        <% @question.errors.each do |error| %><li><%= error.full_message %></li><% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="mb-3">
+    <%= form.label :kind, "类型", class: "form-label" %>
+    <%= form.select :kind, Question::KINDS, {}, class: "form-select" %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :stem, "题干", class: "form-label" %>
+    <%= form.text_area :stem, rows: 3, class: "form-control" %>
+  </div>
+
+  <div class="mb-3">
+    <%= label_tag "question_choices_text", "选项（每行一个，简答题留空）", class: "form-label" %>
+    <%= text_area_tag "question[choices_text]", @question.choices.join("\n"), rows: 4, class: "form-control" %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :answer, "答案", class: "form-label" %>
+    <%= form.text_field :answer, class: "form-control" %>
+  </div>
+
+  <div class="row g-3 mb-3">
+    <div class="col-md-4">
+      <%= form.label :topic, "主题", class: "form-label" %>
+      <%= form.text_field :topic, class: "form-control" %>
+    </div>
+    <div class="col-md-4">
+      <%= form.label :slo, "SLO", class: "form-label" %>
+      <%= form.text_field :slo, class: "form-control" %>
+    </div>
+    <div class="col-md-4">
+      <%= form.label :source, "来源", class: "form-label" %>
+      <%= form.text_field :source, class: "form-control" %>
+    </div>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :explanation, "解析", class: "form-label" %>
+    <%= form.text_area :explanation, rows: 3, class: "form-control" %>
+  </div>
+
+  <%= form.submit class: "btn btn-primary" %>
+<% end %>

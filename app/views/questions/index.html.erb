@@ -1,0 +1,36 @@
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h3 mb-0">题库</h1>
+  <div class="d-flex gap-2">
+    <%= link_to "返回课程", course_path(@course), class: "btn btn-sm btn-outline-secondary" %>
+    <%= link_to "新建题目", new_course_question_path(@course), class: "btn btn-sm btn-primary" %>
+  </div>
+</div>
+
+<p class="text-body-secondary"><%= @course.title %> · 共 <%= @questions.size %> 题</p>
+
+<% if @questions.any? %>
+  <table class="table align-middle">
+    <thead>
+      <tr>
+        <th>题目</th>
+        <th>类型</th>
+        <th>主题</th>
+        <th>答案</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @questions.each do |question| %>
+        <tr>
+          <td><%= question.stem %></td>
+          <td><%= question.kind %></td>
+          <td class="small text-body-secondary"><%= question.topic %></td>
+          <td class="small"><%= question.answer %></td>
+          <td><%= button_to "删除", course_question_path(@course, question), method: :delete, class: "btn btn-sm btn-link text-danger" %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p class="text-body-secondary">还没有题目。</p>
+<% end %>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_09_200000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_09_203000) do
   create_table "activities", force: :cascade do |t|
     t.integer "course_id", null: false
     t.string "activity_type"
@@ -21,6 +21,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_09_200000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["course_id"], name: "index_activities_on_course_id"
+  end
+
+  create_table "answers", force: :cascade do |t|
+    t.integer "attempt_id", null: false
+    t.integer "question_id", null: false
+    t.string "response"
+    t.boolean "correct", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["attempt_id"], name: "index_answers_on_attempt_id"
+    t.index ["question_id"], name: "index_answers_on_question_id"
   end
 
   create_table "assessments", force: :cascade do |t|
@@ -40,6 +51,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_09_200000) do
     t.datetime "opens_at"
     t.index ["course_id", "key"], name: "index_assessments_on_course_id_and_key", unique: true
     t.index ["course_id"], name: "index_assessments_on_course_id"
+  end
+
+  create_table "attempts", force: :cascade do |t|
+    t.integer "course_id", null: false
+    t.integer "user_id", null: false
+    t.integer "score", default: 0, null: false
+    t.integer "total", default: 0, null: false
+    t.datetime "taken_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["course_id"], name: "index_attempts_on_course_id"
+    t.index ["user_id"], name: "index_attempts_on_user_id"
   end
 
   create_table "contributions", force: :cascade do |t|
@@ -112,6 +135,21 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_09_200000) do
     t.index ["course_id"], name: "index_groups_on_course_id"
   end
 
+  create_table "questions", force: :cascade do |t|
+    t.integer "course_id", null: false
+    t.string "topic"
+    t.string "slo"
+    t.string "kind", default: "single", null: false
+    t.text "stem", null: false
+    t.json "choices", default: [], null: false
+    t.string "answer", null: false
+    t.text "explanation"
+    t.string "source"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["course_id"], name: "index_questions_on_course_id"
+  end
+
   create_table "resources", force: :cascade do |t|
     t.integer "course_id", null: false
     t.string "resource_type"
@@ -147,7 +185,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_09_200000) do
   end
 
   add_foreign_key "activities", "courses"
+  add_foreign_key "answers", "attempts"
+  add_foreign_key "answers", "questions"
   add_foreign_key "assessments", "courses"
+  add_foreign_key "attempts", "courses"
+  add_foreign_key "attempts", "users"
   add_foreign_key "contributions", "courses"
   add_foreign_key "contributions", "users"
   add_foreign_key "course_memberships", "courses"
@@ -156,6 +198,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_09_200000) do
   add_foreign_key "group_memberships", "groups"
   add_foreign_key "group_memberships", "users"
   add_foreign_key "groups", "courses"
+  add_foreign_key "questions", "courses"
   add_foreign_key "resources", "courses"
   add_foreign_key "submissions", "assessments"
   add_foreign_key "submissions", "groups"
