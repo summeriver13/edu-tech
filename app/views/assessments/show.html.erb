@@ -18,13 +18,31 @@
     <span class="badge text-bg-warning">门槛 <%= @assessment.min_score ? "≥#{number_with_precision(@assessment.min_score, precision: 0)}%" : "须提交" %></span>
   <% end %>
   <% if @assessment.pass_fail %><span class="badge text-bg-dark">及格制</span><% end %>
+  <% if @assessment.best_of %>
+    <span class="badge text-bg-primary"><%= @assessment.sittings ? "#{@assessment.sittings} 次取 #{@assessment.best_of}" : "取最好 #{@assessment.best_of} 次" %></span>
+  <% end %>
   <% if @assessment.due_at %> · 截止 <%= [ week_label(@course, @assessment.due_at), @course.local_time(@assessment.due_at).strftime("%Y-%m-%d %H:%M") ].compact.join(" ") %><% end %>
   <% if @assessment.scope.present? %> · 范围 <%= @assessment.scope %><% end %>
 </p>
 
 <p class="lead"><%= simple_format(@assessment.description) %></p>
 
-<% if @submissions %>
+<% if @assessment.kind == "quiz" %>
+  <div class="card mb-4">
+    <div class="card-body">
+      <div class="text-body-secondary small">测验</div>
+      <div>
+        计划 <%= @assessment.sittings || "不限" %> 次，计分取最好 <%= @assessment.best_of || "全部" %> 次。
+      </div>
+      <% if current_user && course_member?(@course) %>
+        <% taken = @assessment.attempts.where(user_id: current_user.id).count %>
+        <% score = @assessment.attempt_score_for(current_user) %>
+        <div class="mt-2">已做 <%= taken %> 次<% if score %>，当前计分 <%= score %><% end %></div>
+        <%= link_to "开始测验", course_practice_path(@course, assessment_id: @assessment.id), class: "btn btn-sm btn-primary mt-2" %>
+      <% end %>
+    </div>
+  </div>
+<% elsif @submissions %>
   <h2 class="h5 mt-4">提交（<%= @submissions.size %>）</h2>
   <% if @submissions.any? %>
     <table class="table align-middle">

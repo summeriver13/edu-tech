@@ -45,6 +45,18 @@
     <%= form.label :pass_fail, "及格制（只记通过 / 未通过）", class: "form-check-label" %>
   </div>
 
+  <div class="row g-3 mb-3">
+    <div class="col-md-6">
+      <%= form.label :sittings, "计划次数（测验用）", class: "form-label" %>
+      <%= form.number_field :sittings, min: 1, class: "form-control" %>
+    </div>
+    <div class="col-md-6">
+      <%= form.label :best_of, "取最好几次", class: "form-label" %>
+      <%= form.number_field :best_of, min: 1, class: "form-control" %>
+      <div class="form-text">留空表示全部计分。</div>
+    </div>
+  </div>
+
   <div class="mb-3">
     <%= form.label :scope, "考核范围", class: "form-label" %>
     <%= form.text_field :scope, class: "form-control" %>

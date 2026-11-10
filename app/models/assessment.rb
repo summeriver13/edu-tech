@@ -13,12 +13,16 @@ class Assessment < ApplicationRecord
 
   belongs_to :course
   has_many :submissions, dependent: :destroy
+  has_many :attempts, dependent: :nullify
 
   validates :title, presence: true
   validates :kind, inclusion: { in: KINDS }
   validates :weight, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 100 }
   validates :min_score, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 100 }, allow_nil: true
+  validates :sittings, numericality: { greater_than: 0, only_integer: true }, allow_nil: true
+  validates :best_of, numericality: { greater_than: 0, only_integer: true }, allow_nil: true
   validate :min_score_needs_hurdle
+  validate :best_of_fits_sittings
 
   def submission_for(user)
     return nil if user.nil?
@@ -35,11 +39,28 @@ class Assessment < ApplicationRecord
     submission_for(user)&.grade
   end
 
-  def adjusted_score_for(user)
+  def raw_score_for(user)
     grade = grade_for(user)
-    return nil if grade.nil?
+    return grade.score.to_f unless grade.nil?
 
-    (grade.score.to_f * adjustment_factor_for(user)).clamp(0, 100)
+    attempt_score_for(user)
+  end
+
+  def adjusted_score_for(user)
+    raw = raw_score_for(user)
+    return nil if raw.nil?
+
+    (raw * adjustment_factor_for(user)).clamp(0, 100)
+  end
+
+  def attempt_score_for(user)
+    return nil if user.nil?
+
+    percents = attempts.where(user_id: user.id).map(&:percent).sort.reverse
+    return nil if percents.empty?
+
+    taken = best_of.present? ? percents.first(best_of) : percents
+    (taken.sum.to_f / taken.size).round(1)
   end
 
   def weighted_score_for(user)
@@ -51,10 +72,12 @@ class Assessment < ApplicationRecord
 
   def hurdle_failed?(user)
     return false unless hurdle?
-    return true if submission_for(user).nil?
-    return false if min_score.nil?
 
-    adjusted_score_for(user).to_f < min_score.to_f
+    if min_score.nil?
+      submission_for(user).nil? && attempt_score_for(user).nil?
+    else
+      adjusted_score_for(user).nil? || adjusted_score_for(user) < min_score.to_f
+    end
   end
 
   def outcome_for(user)
@@ -78,5 +101,12 @@ class Assessment < ApplicationRecord
 
   def min_score_needs_hurdle
     errors.add(:min_score, "需要同时勾选门槛") if min_score.present? && !hurdle?
+  end
+
+  def best_of_fits_sittings
+    return if best_of.nil? || sittings.nil?
+    return if best_of <= sittings
+
+    errors.add(:best_of, "不能超过次数")
   end
 end

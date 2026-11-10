@@ -37,6 +37,9 @@
               <span class="badge text-bg-warning">门槛 <%= assessment.min_score ? "≥#{number_with_precision(assessment.min_score, precision: 0)}%" : "须提交" %></span>
             <% end %>
             <% if assessment.pass_fail %><span class="badge text-bg-dark">及格制</span><% end %>
+            <% if assessment.best_of %>
+              <span class="badge text-bg-primary"><%= assessment.sittings ? "#{assessment.sittings} 次取 #{assessment.best_of}" : "取最好 #{assessment.best_of} 次" %></span>
+            <% end %>
           </td>
           <td class="text-end"><%= number_to_percentage(assessment.weight, precision: 0) %></td>
           <td>

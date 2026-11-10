@@ -30,6 +30,17 @@ class PracticeControllerTest < ActionDispatch::IntegrationTest
     assert attempt.answers.first.correct?
   end
 
+  test "attaches an attempt to a quiz assessment" do
+    log_in_as @student
+    post course_practice_url(@course), params: {
+      assessment_id: assessments(:quiz).id,
+      question_ids: [ questions(:single).id ],
+      responses: { questions(:single).id.to_s => "分析" }
+    }
+
+    assert_equal assessments(:quiz), Attempt.order(:id).last.assessment
+  end
+
   test "wrong answers land in the mistake book" do
     log_in_as @student
     post course_practice_url(@course), params: {

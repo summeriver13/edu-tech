@@ -99,6 +99,8 @@ class CourseRepo
         hurdle: item["hurdle"] || false,
         min_score: item["min_score"],
         pass_fail: item["pass_fail"] || false,
+        sittings: item["sittings"],
+        best_of: item["best_of"],
         slos: Array(item["slos"]).map(&:to_s),
         scope: item["scope"],
         venue: item["venue"],

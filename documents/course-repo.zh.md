@@ -70,6 +70,7 @@ assessments:
 | `assessments[].group_work` / `slos` / `scope` / `venue` / `opens_at` / `due_at` | 可选 |
 | `assessments[].hurdle` / `min_score` | 可选。`hurdle: true` 表示门槛项：`min_score` 缺省为「只需提交」，否则低于该分即总评记 TF |
 | `assessments[].pass_fail` | 可选；及格制只记通过 / 未通过（50 分为界） |
+| `assessments[].sittings` / `best_of` | 可选；测验计划次数与计分次数，`best_of` 不能大于 `sittings` |
 
 ## 同步规则
 

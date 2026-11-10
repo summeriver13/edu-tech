@@ -47,11 +47,11 @@
     </thead>
     <tbody>
       <% @assessments.each do |assessment| %>
-        <% grade = assessment.submission_for(current_user)&.grade %>
+        <% score = assessment.raw_score_for(current_user) %>
         <tr>
           <td><%= assessment.title %></td>
           <td class="text-end"><%= number_to_percentage(assessment.weight, precision: 0) %></td>
-          <td class="text-end"><%= grade ? number_with_precision(grade.score, precision: 1) : "—" %></td>
+          <td class="text-end"><%= score ? number_with_precision(score, precision: 1) : "—" %></td>
           <td class="text-end"><%= number_with_precision(assessment.weighted_score_for(current_user), precision: 1) %></td>
         </tr>
       <% end %>

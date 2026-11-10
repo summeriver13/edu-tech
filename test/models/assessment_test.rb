@@ -58,6 +58,34 @@ class AssessmentTest < ActiveSupport::TestCase
     assert_not assessment.hurdle_failed?(users(:two))
   end
 
+  test "scores a quiz from the best attempts" do
+    assessment = assessments(:quiz)
+    assessment.update!(sittings: 3, best_of: 2)
+    user = users(:two)
+    [ 10, 5, 0 ].each do |score|
+      assessment.attempts.create!(course: courses(:two), user: user, taken_at: Time.current, score: score, total: 10)
+    end
+
+    assert_equal 75.0, assessment.attempt_score_for(user)
+  end
+
+  test "uses attempt scores when no grade exists" do
+    assessment = assessments(:quiz)
+    assessment.update!(weight: 40)
+    assessment.attempts.create!(course: courses(:two), user: users(:two), taken_at: Time.current, score: 8, total: 10)
+
+    assert_equal 80.0, assessment.raw_score_for(users(:two))
+    assert_equal 32.0, assessment.weighted_score_for(users(:two))
+  end
+
+  test "rejects best_of above the planned sittings" do
+    assessment = assessments(:quiz)
+    assessment.best_of = 14
+
+    assert_not assessment.valid?
+    assert_includes assessment.errors[:best_of], "不能超过次数"
+  end
+
   test "requires the hurdle flag for a minimum score" do
     assessment = Assessment.new(course: courses(:one), title: "T", kind: "exam", weight: 0, min_score: 30)
     assert_not assessment.valid?

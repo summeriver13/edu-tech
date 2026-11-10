@@ -6,6 +6,7 @@ class PracticeController < ApplicationController
   before_action :require_course_member
 
   def show
+    @assessment = quiz_assessment
     @questions = @course.questions.order(Arel.sql("RANDOM()")).limit(QUESTION_LIMIT)
   end
 
@@ -14,7 +15,7 @@ class PracticeController < ApplicationController
     return redirect_to course_practice_path(@course), alert: "没有可作答的题目。" if questions.empty?
 
     responses = params.fetch(:responses, {}).to_unsafe_h
-    attempt = @course.attempts.new(user: current_user, taken_at: Time.current, total: questions.size)
+    attempt = @course.attempts.new(user: current_user, assessment: quiz_assessment, taken_at: Time.current, total: questions.size)
     attempt.score = questions.count { |question| question.correct?(responses[question.id.to_s]) }
 
     Attempt.transaction do
@@ -39,5 +40,11 @@ class PracticeController < ApplicationController
 
   def set_course
     @course = Course.find(params[:course_id])
+  end
+
+  def quiz_assessment
+    return nil if params[:assessment_id].blank?
+
+    @course.assessments.find_by(id: params[:assessment_id], kind: "quiz")
   end
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_09_211000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_09_212000) do
   create_table "activities", force: :cascade do |t|
     t.integer "course_id", null: false
     t.string "activity_type"
@@ -52,6 +52,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_09_211000) do
     t.boolean "hurdle", default: false, null: false
     t.decimal "min_score"
     t.boolean "pass_fail", default: false, null: false
+    t.integer "sittings"
+    t.integer "best_of"
     t.index ["course_id", "key"], name: "index_assessments_on_course_id_and_key", unique: true
     t.index ["course_id"], name: "index_assessments_on_course_id"
   end
@@ -64,6 +66,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_09_211000) do
     t.datetime "taken_at", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "assessment_id"
+    t.index ["assessment_id"], name: "index_attempts_on_assessment_id"
     t.index ["course_id"], name: "index_attempts_on_course_id"
     t.index ["user_id"], name: "index_attempts_on_user_id"
   end
@@ -194,6 +198,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_09_211000) do
   add_foreign_key "answers", "attempts"
   add_foreign_key "answers", "questions"
   add_foreign_key "assessments", "courses"
+  add_foreign_key "attempts", "assessments"
   add_foreign_key "attempts", "courses"
   add_foreign_key "attempts", "users"
   add_foreign_key "contributions", "courses"

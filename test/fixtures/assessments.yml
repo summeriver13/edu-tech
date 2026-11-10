@@ -25,6 +25,14 @@ exam:
   min_score: 35
   slos: [SLO1, SLO2]
 
+quiz:
+  course: two
+  title: 随堂测验
+  kind: quiz
+  weight: 0
+  sittings: 13
+  best_of: 10
+
 lab:
   course: two
   title: 实验
