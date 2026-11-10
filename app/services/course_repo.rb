@@ -6,7 +6,11 @@ class CourseRepo
 
   MANIFEST = "course.yml".freeze
   WEIGHT_TOTAL = 100
-  REPO_ROOT = Rails.root.join("storage", "repos")
+  REPO_ROOT = if Rails.env.test?
+                Rails.root.join("tmp", "repos", Process.pid.to_s)
+              else
+                Rails.root.join("storage", "repos")
+              end
 
   Result = Data.define(:success, :message) do
     def success?
