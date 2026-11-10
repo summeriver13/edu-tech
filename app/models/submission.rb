@@ -1,10 +1,10 @@
 class Submission < ApplicationRecord
-  belongs_to :assignment
+  belongs_to :assessment
   belongs_to :user
 
   mount_uploader :file, SubmissionUploader
 
-  validates :user_id, uniqueness: { scope: :assignment_id }
+  validates :user_id, uniqueness: { scope: :assessment_id }
   validate :body_or_file_present
 
   after_destroy :remove_file

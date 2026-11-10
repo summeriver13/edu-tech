@@ -87,20 +87,24 @@
 
 <div class="mt-5">
   <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2 class="h4 mb-0">作业</h2>
-    <%= link_to "全部作业", course_assignments_path(@course), class: "btn btn-sm btn-outline-secondary" %>
+    <h2 class="h4 mb-0">评估</h2>
+    <%= link_to "全部评估", course_assessments_path(@course), class: "btn btn-sm btn-outline-secondary" %>
   </div>
 
-  <% if @assignments.any? %>
+  <% if @assessments.any? %>
     <div class="list-group">
-      <% @assignments.each do |assignment| %>
-        <%= link_to course_assignment_path(@course, assignment), class: "list-group-item list-group-item-action d-flex justify-content-between align-items-center" do %>
-          <span><%= assignment.title %></span>
-          <span class="small text-body-secondary"><%= assignment.due_at ? "截止 #{assignment.due_at.strftime('%Y-%m-%d %H:%M')}" : "无截止时间" %></span>
+      <% @assessments.each do |assessment| %>
+        <%= link_to course_assessment_path(@course, assessment), class: "list-group-item list-group-item-action d-flex justify-content-between align-items-center" do %>
+          <span><%= assessment.title %></span>
+          <span class="small text-body-secondary">
+            <%= Assessment::KIND_LABELS.fetch(assessment.kind, assessment.kind) %>
+            <%= number_to_percentage(assessment.weight, precision: 0) %>
+            · <%= assessment.due_at ? "截止 #{assessment.due_at.strftime('%Y-%m-%d %H:%M')}" : "无截止时间" %>
+          </span>
         <% end %>
       <% end %>
     </div>
   <% else %>
-    <p class="text-body-secondary">暂无作业。</p>
+    <p class="text-body-secondary">暂无评估项。</p>
   <% end %>
 </div>

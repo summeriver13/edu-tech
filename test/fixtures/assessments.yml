@@ -1,11 +1,17 @@
 one:
   course: one
   title: 第一次作业
+  kind: assignment
+  weight: 40
+  slos: [SLO1]
   description: 写一个 Ruby 小脚本
   due_at: 2026-12-01 23:59:00
 
 two:
   course: two
   title: Rails 作业
+  kind: assignment
+  weight: 60
+  slos: [SLO1, SLO2]
   description: 建一个页面
   due_at: 2026-12-15 23:59:00

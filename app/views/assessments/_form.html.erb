@@ -1,0 +1,48 @@
+<%= form_with(model: [course, assessment]) do |form| %>
+  <% if assessment.errors.any? %>
+    <div class="text-danger mb-3">
+      <ul class="mb-0">
+        <% assessment.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="mb-3">
+    <%= form.label :title, class: "form-label" %>
+    <%= form.text_field :title, class: "form-control" %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :kind, "类型", class: "form-label" %>
+    <%= form.select :kind, Assessment::KIND_LABELS.map { |key, label| [ label, key ] }, {}, class: "form-select" %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :weight, "权重（%）", class: "form-label" %>
+    <%= form.number_field :weight, min: 0, max: 100, step: 1, class: "form-control" %>
+  </div>
+
+  <div class="mb-3 form-check">
+    <%= form.check_box :group_work, class: "form-check-input" %>
+    <%= form.label :group_work, "小组作业", class: "form-check-label" %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :scope, "考核范围", class: "form-label" %>
+    <%= form.text_field :scope, class: "form-control" %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :description, class: "form-label" %>
+    <%= form.text_area :description, rows: 5, class: "form-control" %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :due_at, "截止时间", class: "form-label" %>
+    <%= form.datetime_local_field :due_at, class: "form-control" %>
+  </div>
+
+  <%= form.submit class: "btn btn-primary" %>
+<% end %>

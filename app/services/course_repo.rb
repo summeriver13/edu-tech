@@ -5,6 +5,7 @@ class CourseRepo
   class Error < StandardError; end
 
   MANIFEST = "course.yml".freeze
+  WEIGHT_TOTAL = 100
   REPO_ROOT = Rails.root.join("storage", "repos")
 
   Result = Data.define(:success, :message) do
@@ -39,13 +40,19 @@ class CourseRepo
 
   def checkout
     FileUtils.mkdir_p(REPO_ROOT)
-    if Dir.exist?(repo_dir.join(".git"))
+    if Dir.exist?(repo_dir.join(".git")) && remote_url == @course.repo_url
       run!("git", "-C", repo_dir.to_s, "fetch", "--depth", "1", "--quiet", "origin")
       run!("git", "-C", repo_dir.to_s, "reset", "--hard", "--quiet", "FETCH_HEAD")
     else
       FileUtils.rm_rf(repo_dir)
       run!("git", "clone", "--depth", "1", "--quiet", @course.repo_url, repo_dir.to_s)
     end
+  end
+
+  def remote_url
+    run!("git", "-C", repo_dir.to_s, "remote", "get-url", "origin").strip
+  rescue Error
+    nil
   end
 
   def load_manifest
@@ -56,11 +63,46 @@ class CourseRepo
   end
 
   def apply!(manifest)
+    assessments = manifest["assessments"] || []
+    check_weight_total!(assessments)
+
     ActiveRecord::Base.transaction do
       update_course(manifest["course"] || {})
       sync_resources(manifest["resources"] || [])
       sync_activities(manifest["activities"] || [])
+      sync_assessments(assessments)
       @course.update!(commit_sha: current_sha, synced_at: Time.current)
+    end
+  end
+
+  def check_weight_total!(items)
+    return if items.empty?
+
+    total = items.sum { |item| item["weight"].to_f }
+    return if (total - WEIGHT_TOTAL).abs < 0.001
+
+    raise Error, "评估项权重合计必须为 #{WEIGHT_TOTAL}，当前为 #{total}。"
+  end
+
+  def sync_assessments(items)
+    items.each do |item|
+      key = item["key"]
+      raise Error, "评估项缺少 key。" if key.blank?
+
+      assessment = @course.assessments.find_or_initialize_by(key: key)
+      assessment.assign_attributes(
+        title: item["title"].presence || key,
+        kind: item["kind"].presence || "assignment",
+        weight: item["weight"].to_f,
+        group_work: item["group_work"] || false,
+        slos: Array(item["slos"]).map(&:to_s),
+        scope: item["scope"],
+        venue: item["venue"],
+        opens_at: item["opens_at"],
+        due_at: item["due_at"],
+        description: item["description"]
+      )
+      assessment.save!
     end
   end
 

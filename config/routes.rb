@@ -16,7 +16,7 @@ Rails.application.routes.draw do
     resources :resources
     resources :activities
     resources :memberships, only: %i[ index create destroy ]
-    resources :assignments do
+    resources :assessments do
       resource :submission, only: %i[ create update ]
     end
   end

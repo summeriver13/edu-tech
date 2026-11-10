@@ -19,7 +19,7 @@ class CoursesController < ApplicationController
   def show
     @resources = @course.resources.order(:name)
     @activities = @course.activities.order(start_time: :desc)
-    @assignments = @course.assignments.order(:due_at)
+    @assessments = @course.assessments.order(:due_at)
   end
 
   def information

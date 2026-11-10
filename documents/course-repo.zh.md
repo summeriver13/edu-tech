@@ -28,6 +28,26 @@ activities:
     start: 2026-03-02T19:00:00+08:00
     end: 2026-03-02T20:30:00+08:00
     location: 线上
+
+assessments:
+  - key: quiz
+    title: Quiz
+    kind: quiz
+    weight: 20
+    group_work: false
+    slos: [SLO1, SLO2]
+    due_at: 2026-11-05T17:50:00+11:00
+    scope: Lecture 1–6
+    venue: 南湖 N201
+  - key: group-project
+    title: Group project
+    kind: project
+    weight: 30
+    group_work: true
+  - key: final-exam
+    title: Final exam
+    kind: exam
+    weight: 50
 ```
 
 | 字段 | 说明 |
@@ -38,6 +58,10 @@ activities:
 | `resources[].url` | 必需；当前不支持从仓库导入文件 |
 | `activities[].type` + `start` | 必需；两者共同定位一条活动 |
 | `activities[].end` / `location` / `description` | 可选 |
+| `assessments[].key` | 必需；课程内唯一，同步的定位键 |
+| `assessments[].kind` | `quiz` / `exam` / `project` / `assignment`，缺省 `assignment` |
+| `assessments[].weight` | 0–100；同一清单合计必须为 100，否则拒绝同步 |
+| `assessments[].group_work` / `slos` / `scope` / `venue` / `opens_at` / `due_at` | 可选 |
 
 ## 同步规则
 

@@ -1,7 +1,7 @@
 class Course < ApplicationRecord
   has_many :resources, dependent: :destroy
   has_many :activities, dependent: :destroy
-  has_many :assignments, dependent: :destroy
+  has_many :assessments, dependent: :destroy
   has_many :course_memberships, dependent: :destroy
   has_many :members, through: :course_memberships, source: :user
 
@@ -17,6 +17,10 @@ class Course < ApplicationRecord
     pattern = "%#{sanitize_sql_like(query)}%"
     where("title LIKE :pattern OR course_number LIKE :pattern OR description LIKE :pattern", pattern: pattern)
   }
+
+  def assessment_weight_total
+    assessments.sum(:weight)
+  end
 
   def manageable_by?(user)
     return false if user.nil?

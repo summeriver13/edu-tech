@@ -109,13 +109,26 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
           - type: 直播
             start: 2026-03-02T19:00:00+08:00
             location: 线上
+        assessments:
+          - key: quiz
+            title: 仓库测验
+            kind: quiz
+            weight: 40
+            slos: [SLO1]
+          - key: exam
+            title: 仓库考试
+            kind: exam
+            weight: 60
+            due_at: 2026-12-13T23:59:00+11:00
       YAML
       git_commit(dir)
       @course.update!(repo_url: dir)
       log_in_as users(:two)
 
       assert_difference ["Resource.count", "Activity.count"] do
-        post sync_course_url(@course)
+        assert_difference "Assessment.count", 2 do
+          post sync_course_url(@course)
+        end
       end
 
       assert_redirected_to course_url(@course)
@@ -124,6 +137,55 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
       assert_equal "仓库标题", @course.title
       assert Resource.exists?(name: "仓库讲义")
       assert Activity.exists?(activity_type: "直播")
+      assert_equal 100, @course.assessments.where(key: %w[ quiz exam ]).sum(:weight)
+      assert_equal %w[ quiz exam ], @course.assessments.where(key: %w[ quiz exam ]).order(:weight).pluck(:kind)
+    end
+  ensure
+    FileUtils.rm_rf(CourseRepo::REPO_ROOT.join(@course.course_number))
+  end
+
+  test "sync rejects weights that do not sum to 100" do
+    Dir.mktmpdir do |dir|
+      File.write(File.join(dir, "course.yml"), <<~YAML)
+        assessments:
+          - key: quiz
+            title: 测验
+            kind: quiz
+            weight: 90
+      YAML
+      git_commit(dir)
+      @course.update!(repo_url: dir)
+      log_in_as users(:two)
+
+      assert_no_difference ["Assessment.count"] do
+        post sync_course_url(@course)
+      end
+
+      assert_redirected_to course_url(@course)
+      assert_match "权重合计必须为 100", flash[:alert]
+      assert_nil @course.reload.commit_sha
+    end
+  ensure
+    FileUtils.rm_rf(CourseRepo::REPO_ROOT.join(@course.course_number))
+  end
+
+  test "sync reclones when the repository address changes" do
+    Dir.mktmpdir do |first|
+      Dir.mktmpdir do |second|
+        File.write(File.join(first, "course.yml"), "course:\n  title: 一号\n")
+        git_commit(first)
+        File.write(File.join(second, "course.yml"), "course:\n  title: 二号\n")
+        git_commit(second)
+        log_in_as users(:two)
+
+        @course.update!(repo_url: first)
+        post sync_course_url(@course)
+        assert_equal "一号", @course.reload.title
+
+        @course.update!(repo_url: second)
+        post sync_course_url(@course)
+        assert_equal "二号", @course.reload.title
+      end
     end
   ensure
     FileUtils.rm_rf(CourseRepo::REPO_ROOT.join(@course.course_number))
