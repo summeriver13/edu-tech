@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_09_180000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_09_190000) do
   create_table "activities", force: :cascade do |t|
     t.integer "course_id", null: false
     t.string "activity_type"
@@ -21,6 +21,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_09_180000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["course_id"], name: "index_activities_on_course_id"
+  end
+
+  create_table "assignments", force: :cascade do |t|
+    t.integer "course_id", null: false
+    t.string "title", null: false
+    t.text "description"
+    t.datetime "due_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["course_id"], name: "index_assignments_on_course_id"
   end
 
   create_table "course_memberships", force: :cascade do |t|
@@ -60,6 +70,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_09_180000) do
     t.index ["course_id"], name: "index_resources_on_course_id"
   end
 
+  create_table "submissions", force: :cascade do |t|
+    t.integer "assignment_id", null: false
+    t.integer "user_id", null: false
+    t.text "body"
+    t.string "file"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["assignment_id", "user_id"], name: "index_submissions_on_assignment_id_and_user_id", unique: true
+    t.index ["assignment_id"], name: "index_submissions_on_assignment_id"
+    t.index ["user_id"], name: "index_submissions_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "name"
     t.string "password_digest"
@@ -69,7 +91,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_09_180000) do
   end
 
   add_foreign_key "activities", "courses"
+  add_foreign_key "assignments", "courses"
   add_foreign_key "course_memberships", "courses"
   add_foreign_key "course_memberships", "users"
   add_foreign_key "resources", "courses"
+  add_foreign_key "submissions", "assignments"
+  add_foreign_key "submissions", "users"
 end

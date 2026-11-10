@@ -1,0 +1,82 @@
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h3 mb-0"><%= @assignment.title %></h1>
+  <div class="d-flex gap-2">
+    <%= link_to "返回课程", course_path(@course), class: "btn btn-sm btn-outline-secondary" %>
+    <% if course_manager?(@course) %>
+      <%= link_to "编辑", edit_course_assignment_path(@course, @assignment), class: "btn btn-sm btn-outline-secondary" %>
+      <%= button_to "删除", course_assignment_path(@course, @assignment), method: :delete, class: "btn btn-sm btn-outline-danger", form_class: "d-inline", data: { turbo_confirm: "确认删除？" } %>
+    <% end %>
+  </div>
+</div>
+
+<p class="text-body-secondary">
+  <%= @course.title %>
+  <% if @assignment.due_at %> · 截止 <%= @assignment.due_at.strftime("%Y-%m-%d %H:%M") %><% end %>
+</p>
+
+<p class="lead"><%= simple_format(@assignment.description) %></p>
+
+<% if @submissions %>
+  <h2 class="h5 mt-4">提交（<%= @submissions.size %>）</h2>
+  <% if @submissions.any? %>
+    <table class="table align-middle">
+      <thead>
+        <tr>
+          <th>学生</th>
+          <th>内容</th>
+          <th>附件</th>
+          <th>时间</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @submissions.each do |submission| %>
+          <tr>
+            <td><%= submission.user.name %></td>
+            <td><%= truncate(submission.body.to_s, length: 80) %></td>
+            <td>
+              <% if submission.file.present? %>
+                <%= link_to "下载", submission.file.url, target: "_blank", rel: "noopener" %>
+              <% end %>
+            </td>
+            <td class="small text-body-secondary"><%= submission.created_at.strftime("%Y-%m-%d %H:%M") %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <p class="text-body-secondary">还没有人提交。</p>
+  <% end %>
+<% elsif @submission %>
+  <h2 class="h5 mt-4"><%= @submission.persisted? ? "我的提交" : "提交作业" %></h2>
+
+  <% if @submission.errors.any? %>
+    <div class="text-danger mb-3">
+      <ul class="mb-0">
+        <% @submission.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <%= form_with(model: @submission, url: course_assignment_submission_path(@course, @assignment), method: @submission.persisted? ? :patch : :post) do |form| %>
+    <div class="mb-3">
+      <%= form.label :body, "内容", class: "form-label" %>
+      <%= form.text_area :body, rows: 5, class: "form-control" %>
+    </div>
+
+    <div class="mb-3">
+      <%= form.label :file, "附件", class: "form-label" %>
+      <%= form.file_field :file, class: "form-control" %>
+      <div class="form-text">支持 pdf / zip / txt / md / docx / pptx / png / jpg，单个文件不超过 50 MB。</div>
+    </div>
+
+    <%= form.submit(@submission.persisted? ? "更新提交" : "提交", class: "btn btn-primary") %>
+  <% end %>
+
+  <% if @submission.persisted? %>
+    <p class="small text-body-secondary mt-2">提交时间 <%= @submission.created_at.strftime("%Y-%m-%d %H:%M") %></p>
+  <% end %>
+<% else %>
+  <p class="text-body-secondary"><%= link_to "登录", new_session_path %> 后可提交作业。</p>
+<% end %>

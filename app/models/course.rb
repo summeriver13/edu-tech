@@ -1,6 +1,7 @@
 class Course < ApplicationRecord
   has_many :resources, dependent: :destroy
   has_many :activities, dependent: :destroy
+  has_many :assignments, dependent: :destroy
   has_many :course_memberships, dependent: :destroy
   has_many :members, through: :course_memberships, source: :user
 
