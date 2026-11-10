@@ -6,11 +6,10 @@ class CourseRepo
 
   MANIFEST = "course.yml".freeze
   WEIGHT_TOTAL = 100
-  REPO_ROOT = if Rails.env.test?
-                Rails.root.join("tmp", "repos", Process.pid.to_s)
-              else
-                Rails.root.join("storage", "repos")
-              end
+  def self.repo_root
+    base = Rails.env.test? ? Rails.root.join("tmp", "repos") : Rails.root.join("storage", "repos")
+    Rails.env.test? ? base.join(Process.pid.to_s) : base
+  end
 
   Result = Data.define(:success, :message) do
     def success?
@@ -39,11 +38,11 @@ class CourseRepo
   end
 
   def repo_dir
-    REPO_ROOT.join(@course.course_number.to_s.gsub(/[^\w-]/, "_"))
+    self.class.repo_root.join(@course.course_number.to_s.gsub(/[^\w-]/, "_"))
   end
 
   def checkout
-    FileUtils.mkdir_p(REPO_ROOT)
+    FileUtils.mkdir_p(self.class.repo_root)
     if Dir.exist?(repo_dir.join(".git")) && remote_url == @course.repo_url
       run!("git", "-C", repo_dir.to_s, "fetch", "--depth", "1", "--quiet", "origin")
       run!("git", "-C", repo_dir.to_s, "reset", "--hard", "--quiet", "FETCH_HEAD")

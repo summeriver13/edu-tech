@@ -190,7 +190,7 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
       assert_equal "not_permitted", synced_exam.ai_policy
     end
   ensure
-    FileUtils.rm_rf(CourseRepo::REPO_ROOT.join(@course.course_number))
+    FileUtils.rm_rf(CourseRepo.repo_root.join(@course.course_number))
   end
 
   test "sync rejects weights that do not sum to 100" do
@@ -215,7 +215,7 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
       assert_nil @course.reload.commit_sha
     end
   ensure
-    FileUtils.rm_rf(CourseRepo::REPO_ROOT.join(@course.course_number))
+    FileUtils.rm_rf(CourseRepo.repo_root.join(@course.course_number))
   end
 
   test "sync reclones when the repository address changes" do
@@ -237,7 +237,7 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
       end
     end
   ensure
-    FileUtils.rm_rf(CourseRepo::REPO_ROOT.join(@course.course_number))
+    FileUtils.rm_rf(CourseRepo.repo_root.join(@course.course_number))
   end
 
   test "sync reports a missing manifest" do
@@ -253,7 +253,7 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
       assert_nil @course.reload.commit_sha
     end
   ensure
-    FileUtils.rm_rf(CourseRepo::REPO_ROOT.join(@course.course_number))
+    FileUtils.rm_rf(CourseRepo.repo_root.join(@course.course_number))
   end
 
   test "student cannot sync a course" do
