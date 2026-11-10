@@ -4,8 +4,8 @@ ruby "4.0.7"
 
 gem "rails", "~> 8.1.4"
 
-# The original asset pipeline for Rails [https://github.com/rails/sprockets-rails]
-gem "sprockets-rails"
+# The default asset pipeline for Rails [https://github.com/rails/propshaft]
+gem "propshaft"
 
 # File Uploader
 gem 'carrierwave'

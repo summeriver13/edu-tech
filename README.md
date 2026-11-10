@@ -8,7 +8,7 @@
 
 ## quick-start
 
-要求：Ruby 4.0.7（见 `.ruby-version`）、Node.js + Yarn。
+要求：Ruby 4.0.7（见 `.ruby-version`）、Node.js 24（见 `.node-version`）+ Yarn 1。
 
 ```
 bundle install
