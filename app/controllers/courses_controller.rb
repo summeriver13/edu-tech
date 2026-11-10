@@ -3,8 +3,8 @@ class CoursesController < ApplicationController
 
   before_action :require_login, only: %i[ new create edit update destroy sync ]
   before_action :require_admin, only: %i[ new create destroy ]
-  before_action :set_course, only: %i[ show edit update destroy sync ]
-  before_action :require_course_manager, only: %i[ edit update sync ]
+  before_action :set_course, only: %i[ show edit update destroy sync preview ]
+  before_action :require_course_manager, only: %i[ edit update sync preview ]
 
   # GET /courses or /courses.json
   def index
@@ -23,6 +23,7 @@ class CoursesController < ApplicationController
     @lessons = @course.lessons
     @completed_lesson_ids = logged_in? ? LessonCompletion.where(user: current_user, lesson: @lessons).pluck(:lesson_id) : []
     @lesson_progress = @course.lesson_progress_for(logged_in? ? current_user : nil)
+    @certificate = logged_in? ? @course.certificates.find_by(user: current_user) : nil
   end
 
   def information
@@ -35,6 +36,18 @@ class CoursesController < ApplicationController
 
   # GET /courses/1/edit
   def edit
+  end
+
+  # GET /courses/1/preview
+  def preview
+    result = CourseRepo.new(@course).preview
+    unless result.success?
+      redirect_to course_path(@course), alert: result.message
+      return
+    end
+
+    @changes = result.changes
+    @message = result.message
   end
 
   # POST /courses/1/sync

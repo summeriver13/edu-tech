@@ -11,6 +11,7 @@ Rails.application.routes.draw do
   resources :courses do
     member do
       get 'information'
+      get 'preview'
       post 'sync'
     end
     resources :resources
@@ -35,5 +36,6 @@ Rails.application.routes.draw do
     resource :enrollment, only: %i[ create ], controller: "enrollments"
   end
   get "courses/:course_id/practice/mistakes", to: "practice#mistakes", as: :course_practice_mistakes
+  resources :certificates, only: %i[ show ], param: :serial
   resources :users
 end

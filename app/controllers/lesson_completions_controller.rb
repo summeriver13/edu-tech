@@ -6,7 +6,9 @@ class LessonCompletionsController < ApplicationController
 
   def create
     @lesson.lesson_completions.find_or_create_by(user: current_user)
-    redirect_to course_lesson_path(@course, @lesson), notice: "已标记完成。"
+    certificate = Certificate.issue_for(current_user, @course)
+    notice = certificate ? "已标记完成，完成记录已生成。" : "已标记完成。"
+    redirect_to course_lesson_path(@course, @lesson), notice: notice
   end
 
   def destroy

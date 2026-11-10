@@ -11,6 +11,7 @@ class Course < ApplicationRecord
   has_many :attempts, dependent: :destroy
   has_many :contributions, dependent: :destroy
   has_many :lessons, -> { in_order }, dependent: :destroy
+  has_many :certificates, dependent: :destroy
 
   mount_uploader :cover, CoverUploader
 
@@ -62,6 +63,13 @@ class Course < ApplicationRecord
 
   def enroll(user)
     course_memberships.find_or_create_by(user: user) { |membership| membership.role = "student" }
+  end
+
+  def certificate_ready?(user)
+    return false if user.nil?
+
+    done, total = lesson_progress_for(user)
+    total.positive? && done == total
   end
 
   def lesson_progress_for(user)

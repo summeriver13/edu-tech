@@ -51,6 +51,12 @@
           <%= button_to "加入课程", course_enrollment_path(@course), method: :post, class: "btn btn-primary" %>
         </div>
       <% end %>
+      <% if @certificate %>
+        <div class="mt-3">
+          <%= link_to "查看完成记录", certificate_path(@certificate.serial), class: "btn btn-sm btn-outline-success" %>
+          <span class="small text-body-secondary ms-2">编号 <%= @certificate.serial %></span>
+        </div>
+      <% end %>
     </div>
   </div>
 <% end %>
@@ -71,7 +77,7 @@
         </div>
       </div>
       <% if course_manager?(@course) %>
-        <%= button_to "从仓库同步", sync_course_path(@course), method: :post, class: "btn btn-primary" %>
+        <%= link_to "预览变更", preview_course_path(@course), class: "btn btn-primary" %>
       <% end %>
     </div>
   </div>

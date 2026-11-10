@@ -34,8 +34,19 @@ class LessonsControllerTest < ActionDispatch::IntegrationTest
     end
 
     assert_redirected_to course_lesson_url(@course, @lesson)
-    assert_equal "已标记完成。", flash[:notice]
+    assert_equal "已标记完成，完成记录已生成。", flash[:notice]
     assert @lesson.completed_by?(users(:two))
+    assert Certificate.exists?(course: @course, user: users(:two))
+  end
+
+  test "the completion record is issued only once" do
+    log_in_as users(:two)
+    post course_lesson_completion_url(@course, @lesson)
+    delete course_lesson_completion_url(@course, @lesson)
+
+    assert_no_difference "Certificate.count" do
+      post course_lesson_completion_url(@course, @lesson)
+    end
   end
 
   test "a member cancels completion" do

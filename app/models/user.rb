@@ -11,6 +11,7 @@ class User < ApplicationRecord
   has_many :contributions, dependent: :destroy
   has_many :attempts, dependent: :destroy
   has_many :lesson_completions, dependent: :destroy
+  has_many :certificates, dependent: :destroy
 
   validates :name, presence: true, uniqueness: true
   validates :role, inclusion: { in: ROLES }
