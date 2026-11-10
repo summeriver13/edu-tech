@@ -10,6 +10,23 @@
   </div>
 </div>
 
+<% if @course.policies? %>
+  <div class="card mb-4">
+    <div class="card-body">
+      <div class="fw-semibold mb-2">学期政策</div>
+      <ul class="mb-0 small">
+        <% if @course.census_at %><li>Census 日期 <%= @course.census_at %></li><% end %>
+        <% if @course.min_attendance %><li>最低出勤率 <%= @course.min_attendance %>%</li><% end %>
+        <% if @course.late_penalty_percent.to_f.positive? %>
+          <li>
+            迟交每天扣 <%= number_with_precision(@course.late_penalty_percent, precision: 0) %> 分<% if @course.late_penalty_max_days %>，超过 <%= @course.late_penalty_max_days %> 天不给分<% end %>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+  </div>
+<% end %>
+
 <% if @course.repo_url.present? %>
   <div class="card mb-4">
     <div class="card-body d-flex flex-wrap justify-content-between align-items-center gap-2">

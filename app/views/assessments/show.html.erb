@@ -21,6 +21,9 @@
   <% if @assessment.best_of %>
     <span class="badge text-bg-primary"><%= @assessment.sittings ? "#{@assessment.sittings} 次取 #{@assessment.best_of}" : "取最好 #{@assessment.best_of} 次" %></span>
   <% end %>
+  <% if @assessment.ai_policy %>
+    <span class="badge text-bg-danger"><%= Assessment::AI_POLICY_LABELS.fetch(@assessment.ai_policy, @assessment.ai_policy) %></span>
+  <% end %>
   <% if @assessment.due_at %> · 截止 <%= [ week_label(@course, @assessment.due_at), @course.local_time(@assessment.due_at).strftime("%Y-%m-%d %H:%M") ].compact.join(" ") %><% end %>
   <% if @assessment.scope.present? %> · 范围 <%= @assessment.scope %><% end %>
   <% if @assessment.word_range %> · 字数 <%= @assessment.word_range.join("–") %><% end %>

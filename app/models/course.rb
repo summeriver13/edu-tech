@@ -20,6 +20,7 @@ class Course < ApplicationRecord
   validates :time_zone, presence: true
   validates :late_penalty_percent, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 100 }
   validates :late_penalty_max_days, numericality: { greater_than: 0, only_integer: true }, allow_nil: true
+  validates :min_attendance, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 100, only_integer: true }, allow_nil: true
   validate :time_zone_is_valid
 
   scope :search, ->(query) {
@@ -48,6 +49,10 @@ class Course < ApplicationRecord
 
   def current_week
     week_of(Time.current)
+  end
+
+  def policies?
+    census_at.present? || min_attendance.present? || late_penalty_percent.to_f.positive?
   end
 
   def assessment_weight_total

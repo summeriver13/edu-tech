@@ -57,6 +57,11 @@
     </div>
   </div>
 
+  <div class="mb-3">
+    <%= form.label :ai_policy, "AI 使用政策", class: "form-label" %>
+    <%= form.select :ai_policy, Assessment::AI_POLICY_LABELS.map { |key, label| [ label, key ] }, { include_blank: "未规定" }, class: "form-select" %>
+  </div>
+
   <div class="row g-3 mb-3">
     <div class="col-md-4">
       <%= form.label :word_limit, "字数要求（词）", class: "form-label" %>

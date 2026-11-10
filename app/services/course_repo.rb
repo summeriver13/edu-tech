@@ -105,6 +105,7 @@ class CourseRepo
         word_limit_tolerance: item["word_limit_tolerance"] || 10,
         group_min: item["group_min"],
         group_max: item["group_max"],
+        ai_policy: item["ai_policy"],
         slos: Array(item["slos"]).map(&:to_s),
         scope: item["scope"],
         venue: item["venue"],
@@ -137,7 +138,9 @@ class CourseRepo
       time_zone: term["time_zone"].presence || @course.time_zone,
       term_weeks: term["weeks"] || @course.term_weeks,
       late_penalty_percent: late_penalty["percent_per_day"] || @course.late_penalty_percent,
-      late_penalty_max_days: late_penalty["max_days"] || @course.late_penalty_max_days
+      late_penalty_max_days: late_penalty["max_days"] || @course.late_penalty_max_days,
+      census_at: term["census_at"] || @course.census_at,
+      min_attendance: term["min_attendance"] || @course.min_attendance
     )
     @course.save!
   end

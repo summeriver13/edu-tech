@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_09_213000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_09_214000) do
   create_table "activities", force: :cascade do |t|
     t.integer "course_id", null: false
     t.string "activity_type"
@@ -58,6 +58,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_09_213000) do
     t.integer "word_limit_tolerance", default: 10, null: false
     t.integer "group_min"
     t.integer "group_max"
+    t.string "ai_policy"
     t.index ["course_id", "key"], name: "index_assessments_on_course_id_and_key", unique: true
     t.index ["course_id"], name: "index_assessments_on_course_id"
   end
@@ -117,6 +118,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_09_213000) do
     t.integer "term_weeks", default: 18, null: false
     t.decimal "late_penalty_percent", default: "0.0", null: false
     t.integer "late_penalty_max_days"
+    t.date "census_at"
+    t.integer "min_attendance"
     t.index ["course_number"], name: "index_courses_on_course_number", unique: true
   end
 

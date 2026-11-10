@@ -30,6 +30,8 @@ term:
   late_penalty:              # 可选
     percent_per_day: 5       # 每迟交一天扣的分数
     max_days: 4              # 超过该天数不给分
+  census_at: 2026-10-05      # 可选
+  min_attendance: 80         # 可选，百分数
 
 activities:
   - type: 直播
@@ -77,6 +79,7 @@ assessments:
 | `assessments[].word_limit` / `word_limit_tolerance` | 可选；字数要求与允许偏差，默认偏差 10% |
 | `assessments[].group_min` / `group_max` | 可选；小组人数区间，提交时校验 |
 | `assessments[].deliverables[]` | 可选；`name` 必需且评估内唯一，`due_at` 可选，按名称 upsert |
+| `assessments[].ai_policy` | 可选；`not_permitted` 或 `allowed_with_declaration`，留空表示未规定 |
 
 ## 同步规则
 

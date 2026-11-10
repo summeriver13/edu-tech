@@ -59,6 +59,17 @@
 
   <div class="row g-3 mb-3">
     <div class="col-md-4">
+      <%= form.label :census_at, "Census 日期", class: "form-label" %>
+      <%= form.date_field :census_at, class: "form-control" %>
+    </div>
+    <div class="col-md-4">
+      <%= form.label :min_attendance, "最低出勤率（%）", class: "form-label" %>
+      <%= form.number_field :min_attendance, min: 0, max: 100, class: "form-control" %>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-3">
+    <div class="col-md-4">
       <%= form.label :late_penalty_percent, "迟交每天扣分", class: "form-label" %>
       <%= form.number_field :late_penalty_percent, min: 0, max: 100, step: 1, class: "form-control" %>
     </div>

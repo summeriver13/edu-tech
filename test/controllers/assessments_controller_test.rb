@@ -35,6 +35,13 @@ class AssessmentsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".badge", text: "及格制"
   end
 
+  test "an assessment shows its AI policy" do
+    @assessment.update!(ai_policy: "not_permitted")
+    get course_assessment_url(@course, @assessment)
+
+    assert_select ".badge", text: "禁止使用生成式 AI"
+  end
+
   test "anyone can open an assessment" do
     get course_assessment_url(@course, @assessment)
     assert_response :success

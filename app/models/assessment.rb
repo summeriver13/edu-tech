@@ -10,6 +10,11 @@ class Assessment < ApplicationRecord
     "lab" => "实验"
   }.freeze
   PASS_MARK = 50
+  AI_POLICIES = %w[ not_permitted allowed_with_declaration ].freeze
+  AI_POLICY_LABELS = {
+    "not_permitted" => "禁止使用生成式 AI",
+    "allowed_with_declaration" => "允许使用生成式 AI，需声明"
+  }.freeze
 
   belongs_to :course
   has_many :submissions, dependent: :destroy
@@ -26,6 +31,7 @@ class Assessment < ApplicationRecord
   validates :word_limit_tolerance, numericality: { greater_than_or_equal_to: 0, only_integer: true }
   validates :group_min, numericality: { greater_than: 0, only_integer: true }, allow_nil: true
   validates :group_max, numericality: { greater_than: 0, only_integer: true }, allow_nil: true
+  validates :ai_policy, inclusion: { in: AI_POLICIES }, allow_nil: true
   validate :min_score_needs_hurdle
   validate :best_of_fits_sittings
 

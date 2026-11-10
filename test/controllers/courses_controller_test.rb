@@ -62,6 +62,17 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     assert_select "a", text: /#{activities(:one).activity_type}/
   end
 
+  test "shows the term policies on the course page" do
+    @course.update!(census_at: Date.new(2026, 10, 5), min_attendance: 80, late_penalty_percent: 5, late_penalty_max_days: 4)
+    get course_url(@course)
+
+    assert_response :success
+    assert_select ".fw-semibold", text: "学期政策"
+    assert_select "li", text: /Census 日期 2026-10-05/
+    assert_select "li", text: /最低出勤率 80%/
+    assert_select "li", text: /迟交每天扣 5 分/
+  end
+
   test "should get edit" do
     get edit_course_url(@course)
     assert_response :success
@@ -116,6 +127,8 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
           late_penalty:
             percent_per_day: 5
             max_days: 4
+          census_at: 2026-10-05
+          min_attendance: 80
         assessments:
           - key: quiz
             title: 仓库测验
@@ -132,6 +145,7 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
             min_score: 35
             word_limit: 2000
             word_limit_tolerance: 10
+            ai_policy: not_permitted
             group_min: 1
             group_max: 5
             due_at: 2026-12-13T23:59:00+11:00
@@ -171,6 +185,9 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
       assert_equal [ "final report", "proposal" ], synced_exam.deliverables.pluck(:name).sort
       assert_equal 5, @course.late_penalty_percent.to_i
       assert_equal 4, @course.late_penalty_max_days
+      assert_equal Date.new(2026, 10, 5), @course.census_at
+      assert_equal 80, @course.min_attendance
+      assert_equal "not_permitted", synced_exam.ai_policy
     end
   ensure
     FileUtils.rm_rf(CourseRepo::REPO_ROOT.join(@course.course_number))

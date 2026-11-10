@@ -70,6 +70,21 @@ class CourseTest < ActiveSupport::TestCase
     assert_not courses(:one).manageable_by?(nil)
   end
 
+  test "rejects a minimum attendance above 100" do
+    course = courses(:one)
+    course.min_attendance = 120
+
+    assert_not course.valid?
+  end
+
+  test "reports whether term policies are set" do
+    course = courses(:one)
+    assert_not course.policies?
+
+    course.census_at = Date.new(2026, 10, 5)
+    assert course.policies?
+  end
+
   test "rejects negative credit" do
     course = courses(:one)
     course.credit = -1

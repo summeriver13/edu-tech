@@ -78,6 +78,15 @@ class AssessmentTest < ActiveSupport::TestCase
     assert_equal 32.0, assessment.weighted_score_for(users(:two))
   end
 
+  test "accepts only known AI policies" do
+    assessment = assessments(:two)
+    assessment.ai_policy = "allowed_with_declaration"
+    assert assessment.valid?
+
+    assessment.ai_policy = "ask_a_friend"
+    assert_not assessment.valid?
+  end
+
   test "computes the allowed word range" do
     assessment = assessments(:two)
     assessment.update!(word_limit: 2000, word_limit_tolerance: 10)

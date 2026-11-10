@@ -58,7 +58,7 @@ class AssessmentsController < ApplicationController
       :title, :description, :due_at, :scope, :venue, :opens_at,
       :kind, :weight, :group_work, :group_min, :group_max,
       :hurdle, :min_score, :pass_fail, :sittings, :best_of,
-      :word_limit, :word_limit_tolerance, slos: []
+      :word_limit, :word_limit_tolerance, :ai_policy, slos: []
     )
   end
 end
