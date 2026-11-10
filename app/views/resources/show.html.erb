@@ -16,9 +16,9 @@
 </p>
 
 <% if @resource.video.present? %>
+  <video controls preload="metadata" class="w-100 rounded mb-3" src="<%= @resource.video.url %>"></video>
   <p>
-    <strong>Video:</strong>
-    <%= link_to @resource.video.url, @resource.video.url, target: "_blank", rel: "noopener" %>
+    <%= link_to "下载视频", @resource.video.url, target: "_blank", rel: "noopener" %>
   </p>
 <% end %>
 

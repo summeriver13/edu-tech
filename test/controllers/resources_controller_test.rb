@@ -25,6 +25,34 @@ class ResourcesControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to course_resource_url(@course, Resource.last)
   end
 
+  test "should create resource with a video" do
+    assert_difference("Resource.count") do
+      post course_resources_url(@course), params: { resource: { name: "Lecture video", resource_type: "video", video: fixture_file_upload("lecture.mp4", "video/mp4") } }
+    end
+
+    resource = Resource.last
+    assert resource.video.present?
+    assert File.exist?(resource.video.path)
+    FileUtils.rm_f(resource.video.path)
+  end
+
+  test "should reject a resource without url and video" do
+    assert_no_difference("Resource.count") do
+      post course_resources_url(@course), params: { resource: { name: "Empty", resource_type: "document" } }
+    end
+
+    assert_response :unprocessable_entity
+  end
+
+  test "should remove the video file on destroy" do
+    resource = @course.resources.create!(name: "Temp video", resource_type: "video", video: fixture_file_upload("lecture.mp4", "video/mp4"))
+    path = resource.video.path
+
+    delete course_resource_url(@course, resource)
+
+    assert_not File.exist?(path)
+  end
+
   test "should show resource" do
     get course_resource_url(@course, @resource)
     assert_response :success

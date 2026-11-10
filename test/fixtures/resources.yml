@@ -4,6 +4,7 @@ one:
   course: one
   name: Lecture slides
   resource_type: document
+  url: https://example.com/slides.pdf
   url: MyString
   description: MyText
 
@@ -11,5 +12,6 @@ two:
   course: two
   name: Reading list
   resource_type: link
+  url: https://example.com/reading-list
   url: MyString
   description: MyText
