@@ -33,6 +33,10 @@
           <td>
             <span class="badge text-bg-secondary"><%= Assessment::KIND_LABELS.fetch(assessment.kind, assessment.kind) %></span>
             <% if assessment.group_work %><span class="badge text-bg-info">小组</span><% end %>
+            <% if assessment.hurdle %>
+              <span class="badge text-bg-warning">门槛 <%= assessment.min_score ? "≥#{number_with_precision(assessment.min_score, precision: 0)}%" : "须提交" %></span>
+            <% end %>
+            <% if assessment.pass_fail %><span class="badge text-bg-dark">及格制</span><% end %>
           </td>
           <td class="text-end"><%= number_to_percentage(assessment.weight, precision: 0) %></td>
           <td>

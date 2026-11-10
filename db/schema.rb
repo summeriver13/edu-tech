@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_09_210000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_09_211000) do
   create_table "activities", force: :cascade do |t|
     t.integer "course_id", null: false
     t.string "activity_type"
@@ -49,6 +49,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_09_210000) do
     t.string "scope"
     t.string "venue"
     t.datetime "opens_at"
+    t.boolean "hurdle", default: false, null: false
+    t.decimal "min_score"
+    t.boolean "pass_fail", default: false, null: false
     t.index ["course_id", "key"], name: "index_assessments_on_course_id_and_key", unique: true
     t.index ["course_id"], name: "index_assessments_on_course_id"
   end

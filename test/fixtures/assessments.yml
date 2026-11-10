@@ -15,3 +15,20 @@ two:
   slos: [SLO1, SLO2]
   description: 建一个页面
   due_at: 2026-12-15 23:59:00
+
+exam:
+  course: two
+  title: 期末考试
+  kind: exam
+  weight: 0
+  hurdle: true
+  min_score: 35
+  slos: [SLO1, SLO2]
+
+lab:
+  course: two
+  title: 实验
+  kind: lab
+  weight: 0
+  hurdle: true
+  pass_fail: true

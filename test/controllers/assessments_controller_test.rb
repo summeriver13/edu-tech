@@ -27,6 +27,14 @@ class AssessmentsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".alert-warning", text: /40%/
   end
 
+  test "the list marks hurdles and pass fail assessments" do
+    get course_assessments_url(courses(:two))
+
+    assert_select ".badge", text: /门槛 ≥35%/
+    assert_select ".badge", text: /门槛 须提交/
+    assert_select ".badge", text: "及格制"
+  end
+
   test "anyone can open an assessment" do
     get course_assessment_url(@course, @assessment)
     assert_response :success

@@ -5,6 +5,24 @@ class CourseTest < ActiveSupport::TestCase
     assert courses(:one).valid?
   end
 
+  test "marks a hurdle failure as TF and maps totals to letters" do
+    course = courses(:two)
+    user = users(:two)
+
+    assert_equal "TF", course.letter_grade(user)
+
+    exam_submission = assessments(:exam).submissions.create!(user: user, body: "答案")
+    exam_submission.create_grade!(score: 35)
+    assessments(:lab).submissions.create!(user: user, body: "实验报告")
+    report = assessments(:two).submissions.create!(user: user, body: "报告")
+    report.create_grade!(score: 100)
+
+    assert_equal "P", course.letter_grade(user)
+
+    report.grade.update!(score: 80)
+    assert_equal "F", course.letter_grade(user)
+  end
+
   test "computes the week number from the term start" do
     course = courses(:one)
     course.update!(week1_start: Date.new(2026, 9, 14), time_zone: "Australia/Sydney")

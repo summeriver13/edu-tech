@@ -29,6 +29,22 @@
     <%= form.label :group_work, "小组作业", class: "form-check-label" %>
   </div>
 
+  <div class="mb-3 form-check">
+    <%= form.check_box :hurdle, class: "form-check-input" %>
+    <%= form.label :hurdle, "通过门槛", class: "form-check-label" %>
+    <div class="form-text">未达标时总评记 TF。不填最低分表示只需提交。</div>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :min_score, "门槛最低分（%）", class: "form-label" %>
+    <%= form.number_field :min_score, min: 0, max: 100, step: 1, class: "form-control" %>
+  </div>
+
+  <div class="mb-3 form-check">
+    <%= form.check_box :pass_fail, class: "form-check-input" %>
+    <%= form.label :pass_fail, "及格制（只记通过 / 未通过）", class: "form-check-label" %>
+  </div>
+
   <div class="mb-3">
     <%= form.label :scope, "考核范围", class: "form-label" %>
     <%= form.text_field :scope, class: "form-control" %>

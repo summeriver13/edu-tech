@@ -65,9 +65,11 @@ assessments:
 | `activities[].type` + `start` | 必需；两者共同定位一条活动 |
 | `activities[].end` / `location` / `description` | 可选 |
 | `assessments[].key` | 必需；课程内唯一，同步的定位键 |
-| `assessments[].kind` | `quiz` / `exam` / `project` / `assignment`，缺省 `assignment` |
+| `assessments[].kind` | `quiz` / `exam` / `project` / `assignment` / `presentation` / `essay` / `lab`，缺省 `assignment` |
 | `assessments[].weight` | 0–100；同一清单合计必须为 100，否则拒绝同步 |
 | `assessments[].group_work` / `slos` / `scope` / `venue` / `opens_at` / `due_at` | 可选 |
+| `assessments[].hurdle` / `min_score` | 可选。`hurdle: true` 表示门槛项：`min_score` 缺省为「只需提交」，否则低于该分即总评记 TF |
+| `assessments[].pass_fail` | 可选；及格制只记通过 / 未通过（50 分为界） |
 
 ## 同步规则
 

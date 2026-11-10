@@ -1,4 +1,6 @@
 class Course < ApplicationRecord
+  GRADE_SCALE = { "HD" => 85, "D" => 75, "C" => 65, "P" => 50 }.freeze
+
   has_many :resources, dependent: :destroy
   has_many :activities, dependent: :destroy
   has_many :assessments, dependent: :destroy
@@ -65,6 +67,17 @@ class Course < ApplicationRecord
 
   def grade_for(user)
     assessments.sum { |assessment| assessment.weighted_score_for(user) }.round(1)
+  end
+
+  def hurdle_failures(user)
+    assessments.select { |assessment| assessment.hurdle_failed?(user) }
+  end
+
+  def letter_grade(user)
+    return "TF" if hurdle_failures(user).any?
+
+    total = grade_for(user)
+    GRADE_SCALE.find { |_, minimum| total >= minimum }&.first || "F"
   end
 
   def time_zone_is_valid

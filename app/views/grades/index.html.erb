@@ -18,10 +18,11 @@
           <th class="text-end"><%= assessment.title %><br><span class="small text-body-secondary"><%= number_to_percentage(assessment.weight, precision: 0) %></span></th>
         <% end %>
         <th class="text-end">总分</th>
+        <th class="text-end">等级</th>
       </tr>
     </thead>
     <tbody>
-      <% @rows.each do |user, total| %>
+      <% @rows.each do |user, total, letter| %>
         <tr>
           <td><%= user.name %></td>
           <% @assessments.each do |assessment| %>
@@ -29,6 +30,7 @@
             <td class="text-end"><%= grade ? number_with_precision(grade.score, precision: 1) : "—" %></td>
           <% end %>
           <td class="text-end"><strong><%= total %></strong></td>
+          <td class="text-end"><span class="badge <%= letter == "TF" || letter == "F" ? "text-bg-danger" : "text-bg-secondary" %>"><%= letter %></span></td>
         </tr>
       <% end %>
     </tbody>
@@ -57,8 +59,13 @@
     <tfoot>
       <tr>
         <th colspan="3">总分</th>
-        <th class="text-end"><%= @rows.first&.last %></th>
+        <th class="text-end"><%= @rows.first[1] %> · <%= @rows.first[2] %></th>
       </tr>
     </tfoot>
   </table>
+
+  <% failures = @course.hurdle_failures(current_user) %>
+  <% if failures.any? %>
+    <div class="alert alert-danger">门槛未达标：<%= failures.map(&:title).join("、") %>。总评记 TF。</div>
+  <% end %>
 <% end %>

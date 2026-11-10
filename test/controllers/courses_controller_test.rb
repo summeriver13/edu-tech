@@ -123,6 +123,8 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
             title: 仓库考试
             kind: exam
             weight: 60
+            hurdle: true
+            min_score: 35
             due_at: 2026-12-13T23:59:00+11:00
       YAML
       git_commit(dir)
@@ -145,6 +147,9 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
       assert Activity.exists?(activity_type: "直播")
       assert_equal 100, @course.assessments.where(key: %w[ quiz exam ]).sum(:weight)
       assert_equal %w[ quiz exam ], @course.assessments.where(key: %w[ quiz exam ]).order(:weight).pluck(:kind)
+      synced_exam = @course.assessments.find_by!(key: "exam")
+      assert synced_exam.hurdle?
+      assert_equal 35, synced_exam.min_score.to_i
     end
   ensure
     FileUtils.rm_rf(CourseRepo::REPO_ROOT.join(@course.course_number))

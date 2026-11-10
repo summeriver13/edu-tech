@@ -36,7 +36,9 @@ class GradesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "th", text: "总分"
-    assert_select "td", text: "48.0"
+    assert_select "td", text: /48\.0/
+    assert_select "th", text: /TF/
+    assert_select ".alert-danger", text: /期末考试/
   end
 
   test "manager sees every member" do

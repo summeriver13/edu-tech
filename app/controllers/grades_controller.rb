@@ -7,11 +7,8 @@ class GradesController < ApplicationController
 
   def index
     @assessments = @course.assessments.order(:due_at)
-    @rows = if course_manager?(@course)
-              @course.members.order(:name).map { |user| [ user, @course.grade_for(user) ] }
-            else
-              [ [ current_user, @course.grade_for(current_user) ] ]
-            end
+    members = course_manager?(@course) ? @course.members.order(:name) : [ current_user ]
+    @rows = members.map { |user| [ user, @course.grade_for(user), @course.letter_grade(user) ] }
   end
 
   def update
