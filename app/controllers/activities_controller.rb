@@ -1,5 +1,6 @@
 class ActivitiesController < ApplicationController
   before_action :require_login, only: %i[ new edit create update destroy ]
+  before_action :require_admin, only: %i[ new edit create update destroy ]
   before_action :set_course
   before_action :set_activity, only: %i[ show edit update destroy ]
 

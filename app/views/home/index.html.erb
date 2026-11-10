@@ -5,7 +5,7 @@
     <h1 class="display-5 fw-bold">Edu-Tech 在线课堂</h1>
     <p class="col-md-8 fs-5 text-body-secondary">管理课程、课程资源与课程活动。</p>
     <%= link_to "浏览课程", courses_path, class: "btn btn-primary btn-lg" %>
-    <% if logged_in? %>
+    <% if admin? %>
       <%= link_to "新建课程", new_course_path, class: "btn btn-outline-secondary btn-lg" %>
     <% else %>
       <%= link_to "登录", new_session_path, class: "btn btn-outline-secondary btn-lg" %>

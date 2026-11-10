@@ -2,8 +2,10 @@
 
 one:
   name: Alice
+  role: admin
   password_digest: <%= BCrypt::Password.create("secret") %>
 
 two:
   name: Bob
+  role: member
   password_digest: <%= BCrypt::Password.create("secret") %>

@@ -19,7 +19,7 @@ bin/rails db:seed
 bin/rails server
 ```
 
-演示数据：3 门课程、4 个资源、3 个活动；登录账号 `admin` / `secret`。
+演示数据：3 门课程、4 个资源、3 个活动；登录账号 `admin` / `secret`（管理员）与 `member` / `secret`（普通用户）。
 
 运行测试：`bin/rails test`。Windows 下 cssbundling-rails 的工具探测缺陷会让 `test:prepare` 失败，先手动 `yarn build:css`，再用 `SKIP_CSS_BUILD=1 bin/rails test`。
 

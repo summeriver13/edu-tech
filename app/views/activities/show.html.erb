@@ -20,5 +20,7 @@
   <%= @activity.description %>
 </p>
 
-<%= link_to "Edit", edit_course_activity_path(@course, @activity), class: "btn btn-outline-secondary" %>
+<% if admin? %>
+  <%= link_to "Edit", edit_course_activity_path(@course, @activity), class: "btn btn-outline-secondary" %>
+<% end %>
 <%= link_to "Back to activities", course_activities_path(@course), class: "btn btn-outline-secondary" %>

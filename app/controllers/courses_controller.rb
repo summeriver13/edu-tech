@@ -2,6 +2,7 @@ class CoursesController < ApplicationController
   PER_PAGE = 9
 
   before_action :require_login, only: %i[ new create edit update destroy ]
+  before_action :require_admin, only: %i[ new create edit update destroy ]
   before_action :set_course, only: %i[show edit update destroy ]
 
   # GET /courses or /courses.json

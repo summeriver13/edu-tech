@@ -22,5 +22,7 @@
   </p>
 <% end %>
 
-<%= link_to "Edit", edit_course_resource_path(@course, @resource), class: "btn btn-outline-secondary" %>
+<% if admin? %>
+  <%= link_to "Edit", edit_course_resource_path(@course, @resource), class: "btn btn-outline-secondary" %>
+<% end %>
 <%= link_to "Back to resources", course_resources_path(@course), class: "btn btn-outline-secondary" %>

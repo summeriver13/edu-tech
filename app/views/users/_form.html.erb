@@ -17,6 +17,11 @@
   </div>
 
   <div>
+    <%= form.label :role, style: "display: block" %>
+    <%= form.select :role, User::ROLES %>
+  </div>
+
+  <div>
     <%= form.label :password, style: "display: block" %>
     <%= form.password_field :password %>
   </div>

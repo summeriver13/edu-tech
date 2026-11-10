@@ -1,5 +1,8 @@
 admin = User.find_or_initialize_by(name: "admin")
-admin.update!(password: "secret", password_confirmation: "secret")
+admin.update!(password: "secret", password_confirmation: "secret", role: "admin")
+
+member = User.find_or_initialize_by(name: "member")
+member.update!(password: "secret", password_confirmation: "secret", role: "member")
 
 seed_courses = [
   {

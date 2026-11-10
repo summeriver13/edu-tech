@@ -23,5 +23,7 @@
   </table>
 </div>
 
-<%= link_to "New resource", new_course_resource_path(@course), class: "btn btn-primary" %>
+<% if admin? %>
+  <%= link_to "New resource", new_course_resource_path(@course), class: "btn btn-primary" %>
+<% end %>
 <%= link_to "Back to course", course_path(@course), class: "btn btn-outline-secondary" %>
