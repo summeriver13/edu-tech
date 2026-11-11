@@ -27,6 +27,7 @@ bin/rails server
 
 - [rails-guide.zh.md](./documents/rails-guide.zh.md)
 - [change-log.zh.md](./documents/change-log.zh.md)
+- [deployment-windows.zh.md](./documents/deployment-windows.zh.md)
 
 ## storage
 
