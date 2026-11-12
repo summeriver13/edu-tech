@@ -34,3 +34,7 @@ pidfile ENV.fetch("PIDFILE") { "tmp/pids/server.pid" }
 
 # Allow puma to be restarted by `bin/rails restart` command.
 plugin :tmp_restart
+
+# Puma rebuilds the command from $0 and ARGV. Windows cannot exec the
+# extensionless bin/rails, and the rebuilt command lacks the "server" subcommand.
+restart_command "#{Gem.ruby} bin/rails server #{ARGV.join(' ')}".strip if Gem.win_platform?

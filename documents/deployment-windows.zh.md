@@ -8,7 +8,7 @@
 |---|---|---|
 | Puma 多进程 | `fork` 可用，按 CPU 核数开 worker | 无 `fork`，只能单进程 |
 | 反向代理 | nginx | 无 nginx 原生版本，用 Caddy、WSL2 或 IIS |
-| 信号 | `SIGUSR1`/`SIGUSR2`/`SIGHUP` 可用 | 未实现，不能热重启或重开日志 |
+| 信号 | `SIGUSR1`/`SIGUSR2`/`SIGHUP` 可用 | 未实现，用文件触发重启（见「重启」） |
 | Solid Queue | `fork` 监督进程 | 只能用 `--mode async` 线程模式 |
 | 服务管理 | systemd | 任务计划程序或 NSSM |
 
@@ -77,6 +77,37 @@ bin/jobs --mode async
 ```bash
 bin/rails runner 'CourseSyncJob.perform_now(Course.first.id)'
 ```
+
+## 重启
+
+Puma 支持按文件重启。`bin/rails restart` 写入 `tmp/restart.txt`，Puma 每 2 秒检查一次。
+
+```bash
+export RAILS_ENV=production
+bin/rails restart
+```
+
+也可以直接 `touch tmp/restart.txt`，省去启动 Rails 命令的时间。
+
+重启后 PID 改变，端口和绑定地址沿用启动参数。新进程就绪前，新请求会失败数秒。
+
+`config/puma.rb` 在 Windows 上设置 `restart_command`。Puma 默认用 `$0` 和参数重建命令，但 Windows 不能直接执行无扩展名的 `bin/rails`，重建的命令也缺少 `server` 子命令。`restart_command` 补上这两点。
+
+| 限制 | 说明 |
+|---|---|
+| Ruby 路径含空格 | Puma 按空格拆分 `restart_command`，路径会被拆断。改为停止再启动 |
+| 参数含空格 | 同上。避免在 `-b` 等参数里使用空格 |
+| 不是零停机 | 单进程重启。重启期间新连接失败数秒 |
+
+不要用 `kill -INT`。Windows 上它会向整个控制台进程组发送 Ctrl+C，可能连同启动脚本一起结束。停止进程用 `Process.kill("KILL", pid)` 或任务管理器的「结束任务」。
+
+后台作业不随 Puma 重启。前台运行时按 Ctrl+C，再重新执行：
+
+```bash
+bin/jobs --mode async
+```
+
+任务计划程序启动时，先「结束」任务，再「运行」任务。
 
 ## 方案 B：Caddy 反向代理
 
@@ -160,7 +191,7 @@ WSL2 内可用 Linux 版 Ruby，也可只装 nginx。若只装 nginx，Windows �
 | 限制 | 说明 |
 |---|---|
 | 单进程 | 无 `fork`。吞吐上限见 performance.zh.md 的压测结果 |
-| 无热重启 | `SIGUSR1`/`SIGUSR2` 未实现。改代码后停止再启动 |
+| 无信号式重启 | `SIGUSR1`/`SIGUSR2` 未实现。用 `bin/rails restart`；后台作业单独重启 |
 | 附件落本机 | CarrierWave 写入 `public/uploads/`。多机部署不共享 |
 | SQLite 单写者 | 高并发写入时改用 PostgreSQL 与 `DATABASE_URL` |
 | 无共享缓存 | Caddy 标准版不带缓存；匿名页缓存靠响应头 |
@@ -187,4 +218,5 @@ WSL2 内可用 Linux 版 Ruby，也可只装 nginx。若只装 nginx，Windows �
 默认 FORCE_SSL：/courses 301 到 https://
 bin/jobs --mode async：Supervisor、Dispatcher、Worker、Scheduler 全部启动
 Caddy 2.11.9：https://localhost/courses 200；HTTP 配置在 FORCE_SSL=false 下 200
+bin/rails restart：PID 33896 → 5272，仍监听 3117，/up 200
 ```
