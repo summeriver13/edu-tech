@@ -134,6 +134,14 @@ curl -sI -H 'Cookie: _app1_session=test' https://cdn.example/courses |
 
 TTL 越短，课程改动越快生效；TTL 越长，源站压力越小。
 
+## 已验证
+
+2026-11-12：
+
+- 本地 234 runs / 736 assertions 全绿
+- 生产模式 Puma 实测 `/courses` 与 `/courses/1` 返回公开缓存头，且没有 `Set-Cookie`
+- 未在真实 Cloudflare 账户上验证
+
 ## 限制
 
 - 只缓存课程列表、课程页、课时页。首页含登录入口，不缓存。
