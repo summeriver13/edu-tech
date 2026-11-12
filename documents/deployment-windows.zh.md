@@ -7,7 +7,8 @@
 | 项 | Linux | Windows |
 |---|---|---|
 | Puma 多进程 | `fork` 可用，按 CPU 核数开 worker | 无 `fork`，只能单进程 |
-| 反向代理 | nginx | 无 nginx 原生版本，用 Caddy、WSL2 或 IIS |
+| 反向代理 | nginx | nginx 的 Windows 构建是 beta，功能受限；用 Caddy、WSL2 或 IIS |
+| 公网缓存 | nginx `proxy_cache` 或 CDN | 本地不必装 nginx；优先用 CDN，见 [cdn.zh.md](./cdn.zh.md) |
 | 信号 | `SIGUSR1`/`SIGUSR2`/`SIGHUP` 可用 | 未实现，用文件触发重启（见「重启」） |
 | Solid Queue | `fork` 监督进程 | 只能用 `--mode async` 线程模式 |
 | 服务管理 | systemd | 任务计划程序或 NSSM |
@@ -153,7 +154,7 @@ caddy run --config Caddyfile
 
 `admin off` 关闭管理端口 2019，避免多次启动冲突。`tls internal` 使用本地 CA，`caddy trust` 需管理员权限。Caddy 转发 `X-Forwarded-Proto: https`，HTTPS 配置下 Rails 可保持 `FORCE_SSL` 默认值。
 
-Caddy 标准版不带共享缓存。匿名页缓存仍由应用的 `Cache-Control: public, max-age=120` 控制。需要 nginx 式 `proxy_cache` 时用方案 C。
+Caddy 标准版不带共享缓存。匿名页缓存由应用缓存头控制。公网可在前面加 CDN，配置见 [cdn.zh.md](./cdn.zh.md)。需要本地 nginx 式 `proxy_cache` 时用方案 C。
 
 ## 方案 C：WSL2 + nginx
 

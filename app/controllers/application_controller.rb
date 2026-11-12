@@ -1,8 +1,16 @@
 class ApplicationController < ActionController::Base
   include Pagination
+  include PublicCache
+
   helper_method :current_user, :logged_in?, :admin?, :course_manager?, :course_member?
 
+  before_action :set_private_cdn_cache_control
+
   private
+
+  def set_private_cdn_cache_control
+    response.headers["CDN-Cache-Control"] = "private, no-store"
+  end
 
   def current_user
     @current_user ||= User.find_by(id: session[:user_id])

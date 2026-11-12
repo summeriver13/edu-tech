@@ -37,4 +37,10 @@ rails new edu-tech -c bootstrap -j esbuild
 - Public bucket: course covers and resource videos. Private bucket: submission files with 10-minute signed URLs
 - Default remains local `public/uploads/`; existing files were not migrated (0 attachment records)
 
+## 2026/11/12 CDN cache
+
+- Anonymous course list, course page and lesson page send `CDN-Cache-Control` with a 300-second edge TTL
+- Logged-in and form responses default to `private, no-store`
+- Document Cloudflare cache rules and the session-cookie bypass
+
 

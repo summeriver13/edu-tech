@@ -21,7 +21,7 @@
 | 课时正文预渲染 | 同步时写 `lessons.body_html`，请求只输出 HTML |
 | 成绩页批量取数 | `ScoreContext` 一次加载提交、成绩、作答与小组系数 |
 | 条件请求 | 课程页与课时页返回 `ETag` 与 `Last-Modified`，命中返回 304 |
-| 公共缓存 | 匿名响应 `Cache-Control: public, max-age=120`；登录响应为 `private` |
+| 公共缓存 | 匿名响应 `Cache-Control: public, max-age=120` 与 `CDN-Cache-Control`；登录响应为 `private, no-store` |
 | 同步转入后台 | `CourseSyncJob` 执行 git 拉取，Web 线程不再等待 |
 
 ## 并发压测
@@ -64,7 +64,7 @@
 
 单进程 Puma 无法承接一万并发。按下面三层部署。
 
-1. 反向代理或 CDN 缓存匿名页面。`Cache-Control: public, max-age=120` 已由应用给出。`ETag` 让代理用 304 复查。
+1. 优先用 CDN 缓存匿名页面。应用给出 `Cache-Control` 与 `CDN-Cache-Control`，`ETag` 让 CDN 用 304 复查。配置见 [cdn.zh.md](./cdn.zh.md)。Linux 也可用 nginx `proxy_cache`。
 2. Puma 线程数与数据库连接池对齐。默认 `RAILS_MAX_THREADS=5`。只读为主时可调到 8。
 3. 多节点时用 PostgreSQL。SQLite 是单写者，写请求会串行。
 
@@ -105,3 +105,4 @@ bin/jobs
 |---|---|
 | 全文搜索 | 只做 `LIKE` 前缀包含匹配 |
 | 缓存组件 | 未引入 Solid Cache。预渲染后片段缓存收益很小 |
+| CDN 自动清除 | 课程同步后靠 TTL 过期；未接 CDN purge API |

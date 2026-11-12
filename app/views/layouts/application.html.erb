@@ -3,7 +3,8 @@
   <head>
     <title>Edu-Tech</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <%= csrf_meta_tags %>
+    <%# Public pages must not write a session cookie; the CDN caches them. %>
+    <%= csrf_meta_tags unless @public_cache_page %>
     <%= csp_meta_tag %>
 
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>

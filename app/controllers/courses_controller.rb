@@ -1,6 +1,5 @@
 class CoursesController < ApplicationController
   PER_PAGE = 9
-  PUBLIC_MAX_AGE = 120
 
   before_action :require_login, only: %i[ new create edit update destroy sync ]
   before_action :require_admin, only: %i[ new create destroy ]
@@ -11,6 +10,8 @@ class CoursesController < ApplicationController
   def index
     @query = params[:q].to_s.strip
     @courses = paginate(Course.search(@query).order(created_at: :desc), per: PER_PAGE)
+    last_modified = Course.maximum(:updated_at)
+    cache_public_page(last_modified: last_modified, etag: [ @query, @page, @total, last_modified ])
   end
 
   def show
@@ -21,12 +22,10 @@ class CoursesController < ApplicationController
     @completed_lesson_ids = logged_in? ? LessonCompletion.where(user: current_user, lesson: @lessons).pluck(:lesson_id) : []
     @lesson_progress = @course.lesson_progress_for(logged_in? ? current_user : nil)
     @certificate = logged_in? ? @course.certificates.find_by(user: current_user) : nil
-    fresh_when(
-      etag: [ @course, content_updated_at, current_user&.id, @completed_lesson_ids.sort, @lesson_progress, @certificate&.id ],
+    cache_public_page(
       last_modified: content_updated_at,
-      public: !logged_in?
+      etag: [ @course, content_updated_at, current_user&.id, @completed_lesson_ids.sort, @lesson_progress, @certificate&.id ]
     )
-    response.cache_control[:max_age] = PUBLIC_MAX_AGE unless logged_in?
   end
 
   def information

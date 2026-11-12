@@ -3,7 +3,7 @@
 <div class="container">
   <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
     <h1 class="h3 mb-0">课程</h1>
-    <%= form_with url: courses_path, method: :get, class: "d-flex gap-2" do |form| %>
+    <%= form_with url: courses_path, method: :get, authenticity_token: false, class: "d-flex gap-2" do |form| %>
       <%= form.search_field :q, value: @query, placeholder: "搜索课程号、标题或简介", class: "form-control" %>
       <%= form.submit "搜索", class: "btn btn-outline-secondary" %>
     <% end %>
