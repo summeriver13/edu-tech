@@ -31,4 +31,10 @@ rails new edu-tech -c bootstrap -j esbuild
 - Ruby 3.2.3 -> 4.0.7; Rails 7.1.3 -> 8.1.4.1; `config.load_defaults 8.1`
 - Fixes: Course associations use `dependent: :destroy`; added missing `courses#edit` view; fixtures use real data; `fiddle`/`irb` added for Ruby 4 console
 
+## 2026/11/12 object storage
+
+- Attachments can use S3-compatible object storage: AWS S3, Cloudflare R2, MinIO
+- Public bucket: course covers and resource videos. Private bucket: submission files with 10-minute signed URLs
+- Default remains local `public/uploads/`; existing files were not migrated (0 attachment records)
+
 

@@ -1,11 +1,9 @@
-class CoverUploader < CarrierWave::Uploader::Base
-  storage :file
-
-  def store_dir
-    "uploads/#{model.class.to_s.underscore}/#{mounted_as}/#{model.id}"
-  end
-
+class CoverUploader < ApplicationUploader
   def extension_allowlist
     %w[ jpg jpeg png webp ]
+  end
+
+  def public_asset?
+    true
   end
 end

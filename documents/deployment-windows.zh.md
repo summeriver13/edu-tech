@@ -192,7 +192,7 @@ WSL2 内可用 Linux 版 Ruby，也可只装 nginx。若只装 nginx，Windows �
 |---|---|
 | 单进程 | 无 `fork`。吞吐上限见 performance.zh.md 的压测结果 |
 | 无信号式重启 | `SIGUSR1`/`SIGUSR2` 未实现。用 `bin/rails restart`；后台作业单独重启 |
-| 附件落本机 | CarrierWave 写入 `public/uploads/`。多机部署不共享 |
+| 附件默认落本机 | 默认 CarrierWave 写入 `public/uploads/`。多机部署前设置 `STORAGE_PROVIDER=s3`，见 storage.zh.md |
 | SQLite 单写者 | 高并发写入时改用 PostgreSQL 与 `DATABASE_URL` |
 | 无共享缓存 | Caddy 标准版不带缓存；匿名页缓存靠响应头 |
 

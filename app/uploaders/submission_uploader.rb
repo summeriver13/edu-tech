@@ -1,12 +1,6 @@
-class SubmissionUploader < CarrierWave::Uploader::Base
+class SubmissionUploader < ApplicationUploader
   MAX_FILE_SIZE = 50.megabytes
   ALLOWED_EXTENSIONS = %w[ pdf zip txt md docx pptx png jpg jpeg ].freeze
-
-  storage :file
-
-  def store_dir
-    "uploads/#{model.class.to_s.underscore}/#{mounted_as}/#{model.id}"
-  end
 
   def extension_allowlist
     ALLOWED_EXTENSIONS

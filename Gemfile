@@ -9,6 +9,7 @@ gem "propshaft"
 
 # File Uploader
 gem 'carrierwave'
+gem "fog-aws", "~> 3.33", require: false
 
 # Use sqlite3 as the database for Active Record sqlite3 关系型数据库
 gem "sqlite3", ">= 2.2"

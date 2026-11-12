@@ -28,7 +28,10 @@ bin/rails server
 - [rails-guide.zh.md](./documents/rails-guide.zh.md)
 - [change-log.zh.md](./documents/change-log.zh.md)
 - [deployment-windows.zh.md](./documents/deployment-windows.zh.md)
+- [storage.zh.md](./documents/storage.zh.md)
 
 ## storage
 
-- 本地文件存储（CarrierWave `storage :file`），文件写入 `public/uploads/`，不入库
+- 默认本地文件存储（CarrierWave `storage :file`），文件写入 `public/uploads/`，不入库
+- 设置 `STORAGE_PROVIDER=s3` 后写入 S3 兼容对象存储；公开桶放封面与视频，私有桶放提交附件
+- 配置见 [storage.zh.md](./documents/storage.zh.md)
