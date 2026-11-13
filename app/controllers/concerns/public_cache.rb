@@ -1,5 +1,7 @@
 module PublicCache
-  BROWSER_MAX_AGE = 120
+  # Without a CDN, browser caching would serve anonymous HTML to a user who
+  # has just logged in. Keep browser revalidation on every request.
+  BROWSER_MAX_AGE = 0
   EDGE_MAX_AGE = 300
   STALE_WHILE_REVALIDATE = 60
   STALE_IF_ERROR = 600

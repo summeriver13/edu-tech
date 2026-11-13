@@ -89,7 +89,7 @@ class PublicCacheTest < ActionDispatch::IntegrationTest
   def assert_public_cache
     cache_control = response.headers["Cache-Control"]
     assert_includes cache_control, "public"
-    assert_includes cache_control, "max-age=120"
+    assert_includes cache_control, "max-age=0"
     assert_includes cache_control, "s-maxage=300"
     assert_equal CDN_CACHE_CONTROL, response.headers["CDN-Cache-Control"]
   end

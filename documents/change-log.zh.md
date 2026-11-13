@@ -43,4 +43,10 @@ rails new edu-tech -c bootstrap -j esbuild
 - Logged-in and form responses default to `private, no-store`
 - Document Cloudflare cache rules and the session-cookie bypass
 
+## 2026/11/13 CDN deferred
+
+- Do not connect a CDN yet
+- Public pages use `Cache-Control: max-age=0, public, s-maxage=300`; browsers revalidate with `ETag` on every request
+- Keep `CDN-Cache-Control` and `s-maxage` for a future shared cache
+
 

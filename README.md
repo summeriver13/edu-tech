@@ -39,6 +39,7 @@ bin/rails server
 
 ## CDN
 
-- 匿名课程列表、课程页、课时页带 `Cache-Control` 与 `CDN-Cache-Control`
+- 当前不接 CDN。匿名课程列表、课程页、课时页带 `Cache-Control: max-age=0, public, s-maxage=300`，浏览器每次用 `ETag` 复查
+- 保留 `CDN-Cache-Control`，供将来接入共享缓存
 - 登录页面与表单默认 `private, no-store`
 - 配置见 [cdn.zh.md](./documents/cdn.zh.md)

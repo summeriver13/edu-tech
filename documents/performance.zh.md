@@ -21,7 +21,7 @@
 | 课时正文预渲染 | 同步时写 `lessons.body_html`，请求只输出 HTML |
 | 成绩页批量取数 | `ScoreContext` 一次加载提交、成绩、作答与小组系数 |
 | 条件请求 | 课程页与课时页返回 `ETag` 与 `Last-Modified`，命中返回 304 |
-| 公共缓存 | 匿名响应 `Cache-Control: public, max-age=120` 与 `CDN-Cache-Control`；登录响应为 `private, no-store` |
+| 公共缓存 | 匿名响应 `Cache-Control: max-age=0, public, s-maxage=300` 与 `CDN-Cache-Control`；浏览器每次用 ETag 复查，登录响应为 `private, no-store` |
 | 同步转入后台 | `CourseSyncJob` 执行 git 拉取，Web 线程不再等待 |
 
 ## 并发压测
@@ -58,13 +58,13 @@
 1. 单进程吞吐约 200 RPS。服务端线程从 5 增到 16，RPS 不变，p95 上升，瓶颈是单进程 CPU。
 2. 200 RPS × 32.6 KB 约为 6.5 MB/s。一万并发读者每两分钟刷新一次约 83 RPS，单进程没有余量。
 3. 304 路径为 291 RPS。条件请求省掉渲染，但仍经过 Rails。
-4. 匿名页面必须由反向代理或 CDN 承接。应用容量按缓存未命中和登录请求估算。
+4. 匿名页面必须由反向代理或 CDN 承接。当前未接 CDN，单进程上限约 200 RPS，按缓存未命中和登录请求估算。
 
 ## 并发只读部署
 
 单进程 Puma 无法承接一万并发。按下面三层部署。
 
-1. 优先用 CDN 缓存匿名页面。应用给出 `Cache-Control` 与 `CDN-Cache-Control`，`ETag` 让 CDN 用 304 复查。配置见 [cdn.zh.md](./cdn.zh.md)。Linux 也可用 nginx `proxy_cache`。
+1. 接入 CDN 后，优先用 CDN 缓存匿名页面。应用给出 `Cache-Control` 与 `CDN-Cache-Control`，`ETag` 让 CDN 用 304 复查。配置见 [cdn.zh.md](./cdn.zh.md)。当前未接 CDN，匿名页面仍回源。Linux 也可用 nginx `proxy_cache`。
 2. Puma 线程数与数据库连接池对齐。默认 `RAILS_MAX_THREADS=5`。只读为主时可调到 8。
 3. 多节点时用 PostgreSQL。SQLite 是单写者，写请求会串行。
 
